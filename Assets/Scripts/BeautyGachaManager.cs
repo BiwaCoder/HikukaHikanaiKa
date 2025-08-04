@@ -68,6 +68,11 @@ public class BeautyGachaManager : MonoBehaviour
     private GachaEntry currentOutfit = null; // 現在装備中の服
     private GachaEntry currentFamilyWealth = null; // 現在の家柄
     private GachaEntry currentPersonality = null; // 現在の性格
+    
+    // パブリックアクセサー
+    public GachaEntry CurrentOutfit => currentOutfit;
+    public GachaEntry CurrentFamilyWealth => currentFamilyWealth;
+    public GachaEntry CurrentPersonality => currentPersonality;
 
     void Start()
     {
