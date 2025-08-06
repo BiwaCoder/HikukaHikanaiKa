@@ -11,18 +11,21 @@
 - **PlayerData.cs**: プレイヤーの状態管理（所持金、装備、所持アイテム）
 - **GachaModel.cs**: ガチャシステムのビジネスロジック（確率計算、アイテム抽選）
 - **RealityShowModel.cs**: リアリティーショーの判定ロジックとライバルデータ
+- **CharacterJudgmentModel.cs**: キャラクター評価システムのデータ管理とLLM連携
 
 ### View層 (`Views/`)
 UI表示とユーザーインターフェースを担当
 
 - **GachaView.cs**: ガチャ関連のUI表示（結果、ステータス、所持アイテム）
 - **RealityShowView.cs**: リアリティーショー関連のUI表示（ライバル情報、判定結果）
+- **CharacterJudgmentView.cs**: キャラクター評価結果の表示とLLM通信状態の管理
 
 ### Controller層 (`Controllers/`)
 ユーザー入力の処理とModelとViewの連携を担当
 
 - **GachaController.cs**: ガチャシステムの制御（ボタンクリック処理、状態更新）
 - **RealityShowController.cs**: リアリティーショーの制御（判定処理、結果生成）
+- **CharacterJudgmentController.cs**: LLMとの通信とキャラクター評価の制御、JSON保存
 
 ## 旧システムとの互換性
 
