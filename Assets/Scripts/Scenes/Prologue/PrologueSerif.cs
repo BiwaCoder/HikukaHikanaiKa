@@ -1,0 +1,121 @@
+using System.Collections;
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+
+public class PrologueSerif : MonoBehaviour
+{
+    [Header("UI References")]
+    public Text dialogueText;
+    public Image clickableArea;
+    
+    [Header("Settings")]
+    public float textSpeed = 0.05f;
+    public string nextSceneName = "GameProtoScene";
+    
+    [Header("Scene Transition")]
+    public float transitionDelay = 1.0f;
+
+    private string[] lines = {
+        "人生に迷い、希望を失った、哀れな人の子よ。",
+        "あなたに救いを与えましょう。",
+        "世界のルールを一瞬でかえる力……",
+        "そう、ガチャです。",
+        "いま引くべきか、後で引くべきか、人生はガチャのようなもの。",
+        "あなたの選択が、運命を変えるのです。",
+        "さあ、引くのです。"
+    };
+
+    private int currentLine = 0;
+    private bool isTyping = false;
+    private bool canProceed = false;
+
+    void Start()
+    {
+        if (dialogueText == null || clickableArea == null)
+        {
+            Debug.LogError("TextかImageが未設定です！");
+            return;
+        }
+
+        clickableArea.GetComponent<Image>().raycastTarget = true;
+        clickableArea.GetComponent<Button>()?.onClick.AddListener(OnClick);
+
+        // 最初のセリフ表示
+        StartCoroutine(TypeLine(lines[currentLine]));
+    }
+
+    public void OnClick()
+    {
+        Debug.Log("クリックされました");
+
+        if (isTyping)
+        {
+            StopAllCoroutines();
+            dialogueText.text = lines[currentLine];
+            isTyping = false;
+            canProceed = true;
+        }
+        else if (canProceed)
+        {
+            currentLine++;
+            if (currentLine < lines.Length)
+            {
+                StartCoroutine(TypeLine(lines[currentLine]));
+            }
+            else
+            {
+                // 全てのセリフが終了したらシーン遷移
+                StartCoroutine(TransitionToNextScene());
+            }
+            canProceed = false;
+        }
+    }
+
+    IEnumerator TypeLine(string line)
+    {
+        Debug.Log("描画開始");
+        isTyping = true;
+        dialogueText.text = "";
+        foreach (char c in line)
+        {
+            dialogueText.text += c;
+            yield return new WaitForSeconds(textSpeed);
+        }
+        isTyping = false;
+        canProceed = true;
+    }
+    
+    IEnumerator TransitionToNextScene()
+    {
+        Debug.Log("プロローグ終了。シーン遷移開始...");
+        
+        // 終了メッセージを表示
+        dialogueText.text = "ガチャの世界へ...";
+        
+        // 指定された時間待機
+        yield return new WaitForSeconds(transitionDelay);
+        
+        // 次のシーンに遷移
+        try
+        {
+            SceneManager.LoadScene(nextSceneName);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"シーン '{nextSceneName}' の読み込みに失敗しました: {e.Message}");
+            Debug.LogError("Build Settings に GameProtoScene が追加されているか確認してください。");
+            
+            // フォールバック: インデックスでの遷移を試行
+            try
+            {
+                SceneManager.LoadScene(1); // 通常、インデックス0はプロローグ、1がゲーム本編
+            }
+            catch (System.Exception fallbackE)
+            {
+                Debug.LogError($"フォールバックシーン遷移も失敗: {fallbackE.Message}");
+                dialogueText.text = "シーン遷移エラー。ゲームを再起動してください。";
+            }
+        }
+    }
+}

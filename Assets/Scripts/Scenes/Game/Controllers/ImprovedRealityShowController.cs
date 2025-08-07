@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using HikukaHikanaika.Models;
 using HikukaHikanaika.Views;
 using HikukaHikanaika.Utils;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -135,38 +136,50 @@ namespace HikukaHikanaika.Controllers
         
         private void DisplayAIRealityShowResult(RealityShowSimulationResponse response)
         {
-            string fullResult = "🎬 AIリアリティーショー『HikukaHikanaika』\n";
-            fullResult += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
+            // 新しい物語調フォーマットでAIリアリティーショー結果を表示するため、
+            // RealityShowView.ShowAIRealityShowResult メソッドを使用
             
-            // 参加者自己紹介
-            fullResult += "👥 参加者自己紹介タイム\n\n";
+            List<RealityShowAPIController.CharacterIntroduction> introductions = 
+                new List<RealityShowAPIController.CharacterIntroduction>();
+            
+            // ResponseデータをCharacterIntroduction形式に変換
             foreach (var intro in response.contestant_introductions)
             {
-                fullResult += $"【{intro.character_name}】\n";
-                fullResult += $"{intro.introduction}\n\n";
-                
-                // 美容ステータス表示
-                fullResult += "💅 ステータス:\n";
-                foreach (var stat in intro.beauty_stats)
+                var characterIntro = new RealityShowAPIController.CharacterIntroduction
                 {
-                    if (stat.Key != "total_points")
-                    {
-                        fullResult += $"  • {GetStatDisplayName(stat.Key)}: {stat.Value}\n";
-                    }
-                }
-                fullResult += $"  🎆 合計ポイント: {intro.beauty_stats.GetValueOrDefault("total_points", "0")}\n\n";
+                    CharacterName = intro.character_name,
+                    Introduction = intro.introduction,
+                    BeautyStats = intro.beauty_stats
+                };
+                introductions.Add(characterIntro);
             }
             
-            fullResult += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
-            fullResult += "📺 司会者による総合解説\n\n";
-            fullResult += response.show_explanation.explanation;
+            // 美しく整形された物語調の表示を使用
+            realityShowView.ShowAIRealityShowResult(introductions, response.show_explanation.explanation);
             
-            // ローカル判定結果も追加
-            fullResult += "\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
-            fullResult += "⚖️ 数値による勝敗判定\n\n";
-            fullResult += GenerateLocalJudgeResult(gachaController.PlayerData);
+            // 追加でローカル判定結果を別途表示（オプション）
+            string localJudgeResult = GenerateLocalJudgeResult(gachaController.PlayerData);
             
-            realityShowView.ShowJudgeResult(fullResult);
+            // ローカル判定結果を追加情報として表示
+            StartCoroutine(ShowAdditionalLocalJudgeResult(localJudgeResult));
+        }
+        
+        private IEnumerator ShowAdditionalLocalJudgeResult(string localResult)
+        {
+            // 少し待ってからローカル判定結果を追加
+            yield return new WaitForSeconds(2f);
+            
+            if (realityShowView.judgeResultText != null)
+            {
+                string currentText = realityShowView.judgeResultText.text;
+                string additionalResult = "\n\n" +
+                    "═══════════════════════════════════════════════════════════\n\n" +
+                    "⚖️ 数値による運命の判定\n\n" +
+                    "～ 館の案内人による客観的な分析 ～\n\n" +
+                    localResult;
+                
+                realityShowView.judgeResultText.text = currentText + additionalResult;
+            }
         }
         
         private string GetStatDisplayName(string statKey)
