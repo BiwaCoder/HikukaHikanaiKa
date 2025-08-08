@@ -35,7 +35,7 @@ namespace HikukaHikanaika.Models
         
         public string PlayerName { get; set; } = "あなた";
         public int CurrentAge { get; set; } = 0;
-        public int RemainingLifespan { get; set; } = 80;
+        public int RemainingTenmei { get; set; } = 80; // 残り天命（ポイント）
         public int LifeCycle { get; set; } = 0;
         
         public int Luck { get; set; } = 0;
@@ -58,7 +58,7 @@ namespace HikukaHikanaika.Models
         private PlayerData()
         {
             CurrentAge = 0;
-            RemainingLifespan = 80;
+            RemainingTenmei = 80;
             LifeCycle = 0;
             Luck = 10;
             Concentration = 10;
@@ -116,15 +116,15 @@ namespace HikukaHikanaika.Models
             return status;
         }
 
-        public void SpendLifespan(int years)
+        public void SpendTenmei(int points)
         {
-            RemainingLifespan -= years;
-            if (RemainingLifespan < 0) RemainingLifespan = 0;
+            RemainingTenmei -= points;
+            if (RemainingTenmei < 0) RemainingTenmei = 0;
         }
         
-        public bool CanAffordLifespan(int years)
+        public bool CanAffordTenmei(int points)
         {
-            return RemainingLifespan >= years;
+            return RemainingTenmei >= points;
         }
         
         public void AdvanceAge()
@@ -135,12 +135,12 @@ namespace HikukaHikanaika.Models
         
         public bool IsAlive()
         {
-            return RemainingLifespan > 0 && CurrentAge < 80;
+            return RemainingTenmei > 0 && CurrentAge < 80;
         }
         
         public bool IsGameOver()
         {
-            return RemainingLifespan <= 0 || CurrentAge >= 80;
+            return RemainingTenmei <= 0 || CurrentAge >= 80;
         }
         
         public string GetLifeStage()

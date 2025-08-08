@@ -28,12 +28,12 @@ public class GachaUIController : MonoBehaviour
 
     private string[] gachaDescriptions = 
     {
-        "💄 美貌ガチャ 🌹\n\n寿命2年を消費して、あなたの外見を決める運命の瞬間...\n\n美しさは時に人生を変える。",
-        "🏰 家柄ガチャ 🎲\n\n寿命2年を消費して、あなたの生まれを決める宿命のルーレット...\n\n血筋が示す、人生の道筋。",
-        "✨ 性格ガチャ 💫\n\n寿命2年を消費して、あなたの内面を形作る魂の選択...\n\n人格こそが、真の運命を決める。",
-        "🍀 運ガチャ 🌟\n\n寿命2年を消費して、幸運を引き寄せる...\n\n見えざる力が、あなたの道を照らす。",
-        "🎯 集中力ガチャ 🧠\n\n寿命2年を消費して、精神を研ぎ澄ます...\n\n一点を見つめる力が、未来を切り開く。",
-        "💖 優しさガチャ 🥰\n\n寿命2年を消費して、心を温める...\n\n愛する心が、世界を優しく包む。"
+        "💄 美貌ガチャ 🌹\n\n天命2ポイントを消費して、あなたの外見を決める運命の瞬間...\n\n美しさは時に人生を変える。",
+        "🏰 家柄ガチャ 🎲\n\n天命2ポイントを消費して、あなたの生まれを決める宿命のルーレット...\n\n血筋が示す、人生の道筋。",
+        "✨ 性格ガチャ 💫\n\n天命2ポイントを消費して、あなたの内面を形作る魂の選択...\n\n人格こそが、真の運命を決める。",
+        "🍀 運ガチャ 🌟\n\n天命2ポイントを消費して、幸運を引き寄せる...\n\n見えざる力が、あなたの道を照らす。",
+        "🎯 集中力ガチャ 🧠\n\n天命2ポイントを消費して、精神を研ぎ澄ます...\n\n一点を見つめる力が、未来を切り開く。",
+        "💖 優しさガチャ 🥰\n\n天命2ポイントを消費して、心を温める...\n\n愛する心が、世界を優しく包む。"
     };
 
     private int currentGachaIndex = 0;
@@ -54,7 +54,7 @@ public class GachaUIController : MonoBehaviour
     void UpdateUI()
     {
         descriptionText.text = gachaDescriptions[currentGachaIndex];
-        priceText.text = "コスト: 寿命2年";
+        priceText.text = "コスト: 天命2ポイント";
         UpdateStatusDisplay();
     }
 
@@ -99,14 +99,25 @@ public class GachaUIController : MonoBehaviour
         
         if (lifeStatusText != null)
         {
-            lifeStatusText.text = $"寿命: {playerData.RemainingLifespan}年 | {playerData.GetLifeStage()}";
+            lifeStatusText.text = $"天命: {playerData.RemainingTenmei}ポイント | {playerData.GetLifeStage()}";
         }
 
         if (statusText != null)
         {
-            var allStatus = playerData.GetAllStatus();
-            statusText.text = $"💄 美貌: {allStatus["外見"]} | 🏠 家柄: {allStatus["外見"]} | ✨ 性格: {allStatus["外見"]}\n" +
-                              $"🍀 運: {allStatus["運"]} | 🎯 集中力: {allStatus["集中力"]} | 💖 優しさ: {allStatus["優しさ"]}";
+            string outfitInfo = playerData.CurrentOutfit != null 
+                ? $"💄 美貌: {playerData.CurrentOutfit.name} ({playerData.CurrentOutfit.points})" 
+                : "💄 美貌: なし (0)";
+                    
+            string familyInfo = playerData.CurrentFamilyWealth != null 
+                ? $"🏠 家柄: {playerData.CurrentFamilyWealth.name} ({playerData.CurrentFamilyWealth.points})" 
+                : "🏠 家柄: なし (0)";
+                    
+            string personalityInfo = playerData.CurrentPersonality != null 
+                ? $"✨ 性格: {playerData.CurrentPersonality.name} ({playerData.CurrentPersonality.points})" 
+                : "✨ 性格: なし (0)";
+
+            statusText.text = $"{outfitInfo}\n{familyInfo}\n{personalityInfo}\n" +
+                              $"🍀 運: {playerData.Luck} | 🎯 集中力: {playerData.Concentration} | 💖 優しさ: {playerData.Kindness}";
         }
     }
     

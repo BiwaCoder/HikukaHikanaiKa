@@ -98,8 +98,8 @@ public class LifeStageEventController : MonoBehaviour
             if (gachaButtonText != null)
                 gachaButtonText.text = "ガチャを引いてから挑戦 (-2年)";
                 
-            // 寿命不足の場合はボタン無効化
-            gachaButton.interactable = playerData.CanAffordLifespan(2);
+            // 天命不足の場合はボタン無効化
+            gachaButton.interactable = playerData.CanAffordTenmei(2);
         }
         
         if (resultText != null)
@@ -114,7 +114,7 @@ public class LifeStageEventController : MonoBehaviour
         string statusName = GetStatusName(currentEvent.requiredStatus);
         
         statusText.text = $"現在の{statusName}: {requiredStat}pt\n" +
-                         $"寿命: {playerData.RemainingLifespan}年 | {playerData.GetLifeStage()}";
+                         $"天命: {playerData.RemainingTenmei}ポイント | {playerData.GetLifeStage()}";
     }
     
     int GetRequiredStatusValue()
@@ -154,18 +154,18 @@ public class LifeStageEventController : MonoBehaviour
     
     public void OnChallengeClicked()
     {
-        if (eventCompleted) return;
+        if (eventCompleted) return; 
         
         StartCoroutine(ProcessChallenge());
     }
     
     public void OnGachaClicked()
     {
-        if (eventCompleted) return;
+        if (eventCompleted) return; 
         
-        if (!playerData.CanAffordLifespan(2))
+        if (!playerData.CanAffordTenmei(2))
         {
-            ShowResult("⏰ 寿命が足りません！");
+            ShowResult("⏳ 天命が足りません！");
             return;
         }
         
@@ -199,12 +199,12 @@ public class LifeStageEventController : MonoBehaviour
             result = currentEvent.greatFailure;
         }
 
-        // 2. 寿命を変動させる
-        playerData.RemainingLifespan += result.lifespanChange;
+        // 2. 天命を変動させる
+        playerData.RemainingTenmei += result.tenmeiChange;
 
         // 3. 表示する最終的なメッセージを一度に組み立てる
         string statusInfluence = $"({GetStatusName(currentEvent.requiredStatus)}が影響しました)";
-        string changeDescription = result.lifespanChange >= 0 ? "🎉" : "💔";
+        string changeDescription = result.tenmeiChange >= 0 ? "🎉" : "💔";
         string finalMessage = $"{result.text}\n{statusInfluence}\n\n{changeDescription} {result.description}";
 
         // ★★★ 結果を履歴に記録 ★★★
@@ -216,7 +216,7 @@ public class LifeStageEventController : MonoBehaviour
         // ゲームオーバーチェック
         if (playerData.IsGameOver())
         {
-            yield return StartCoroutine(TypeText("\n\n💀 あなたの人生は終了しました..."));
+            yield return StartCoroutine(TypeText("\n\n💀 あなたの天命は尽きました..."));
             yield return new WaitForSeconds(3f);
             SceneManager.LoadScene("GameOver");
             yield break;

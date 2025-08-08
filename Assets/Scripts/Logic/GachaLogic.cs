@@ -39,33 +39,33 @@ namespace HikukaHikanaika.Logic
         
         public bool CanPerformGacha(GachaType gachaType)
         {
-            const int LIFESPAN_COST = 2; // ガチャ1回につき2年消費
-            return PlayerData.CanAffordLifespan(LIFESPAN_COST);
+            const int TENMEI_COST = 2; // ガチャ1回につき天命2ポイント消費
+            return PlayerData.CanAffordTenmei(TENMEI_COST);
         }
         
         public string PerformGacha(GachaType gachaType)
         {
-            const int LIFESPAN_COST = 2; // ガチャ1回につき2年消費
+            const int TENMEI_COST = 2; // ガチャ1回につき天命2ポイント消費
             
             if (PlayerData.IsGameOver())
             {
-                return "💀 人生が終了しています...";
+                return "💀 あなたの天命は尽きています...";
             }
             
-            if (!PlayerData.CanAffordLifespan(LIFESPAN_COST))
+            if (!PlayerData.CanAffordTenmei(TENMEI_COST))
             {
-                return "⏰ 寿命が足りません！残り" + PlayerData.RemainingLifespan + "年";
+                return "⏳ 天命が足りません！残り" + PlayerData.RemainingTenmei + "ポイント";
             }
             
-            PlayerData.SpendLifespan(LIFESPAN_COST);
+            PlayerData.SpendTenmei(TENMEI_COST);
             GachaItem pulledItem = gachaModel.PullGacha(gachaType);
             
             string result = ProcessGachaResult(pulledItem, gachaType);
             
-            // ガチャ後に寿命チェック
+            // ガチャ後に天命チェック
             if (PlayerData.IsGameOver())
             {
-                result += "\n\n💀 あなたの人生は終了しました...";
+                result += "\n\n💀 あなたの天命は尽きました...";
             }
             
             return result;
