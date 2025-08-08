@@ -680,7 +680,7 @@ GameObject:
   - component: {fileID: 1997194601}
   - component: {fileID: 1997194600}
   - component: {fileID: 1997194599}
-  - component: {fileID: 1997194602}
+  - component: {fileID: 1997194603}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -771,7 +771,7 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
---- !u!114 &1997194602
+--- !u!114 &1997194603
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -780,7 +780,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1997194597}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 093e8b396d2d54ee28e6357ea4d9886f, type: 3}
+  m_Script: {fileID: 11500000, guid: 1627d6985fa7f440fa9ff2c4940156d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   dialogueText: {fileID: 1000019477}
@@ -797,10 +797,14 @@ PrefabInstance:
     - target: {fileID: 8823223055801410067, guid: 6e36d9ca39a554b8db60681baa13d46e, type: 3}
       propertyPath: m_Delegates.Array.data[0].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 1997194602}
+      objectReference: {fileID: 1997194603}
     - target: {fileID: 8823223055801410067, guid: 6e36d9ca39a554b8db60681baa13d46e, type: 3}
       propertyPath: m_Delegates.Array.data[0].callback.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: OnClick
+      objectReference: {fileID: 0}
+    - target: {fileID: 8823223055801410067, guid: 6e36d9ca39a554b8db60681baa13d46e, type: 3}
+      propertyPath: m_Delegates.Array.data[0].callback.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: RealitySerif, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 8823223055801410078, guid: 6e36d9ca39a554b8db60681baa13d46e, type: 3}
       propertyPath: m_Name

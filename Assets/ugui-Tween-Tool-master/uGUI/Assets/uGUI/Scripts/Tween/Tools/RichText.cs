@@ -68,7 +68,9 @@ public class RichText : Text, IPointerClickHandler
                     break;
             }
 #else
-            yield return UIManager.SetSpriteAsync(image, atlasname, spritenames[i]);
+            yield return null;
+            //TODO ちゃんと治す
+            //yield return UIManager.SetSpriteAsync(image, atlasname, spritenames[i]);
 #endif
             sprites[i] = image.sprite;
         }
@@ -161,7 +163,9 @@ public class RichText : Text, IPointerClickHandler
                         break;
                 }
 #else
-                UIManager.SetSpriteAsync(img, spriteFullName[0], spriteName);
+                return;
+                //TODO ちゃんと治す
+                //UIManager.SetSpriteAsync(img, spriteFullName[0], spriteName);
 #endif
             }
             img.rectTransform.sizeDelta = new Vector2(size, size);

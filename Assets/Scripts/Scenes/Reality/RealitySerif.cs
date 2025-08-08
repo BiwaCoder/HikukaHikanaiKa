@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-public class PrologueSerif : MonoBehaviour
+public class RealitySerif : MonoBehaviour
 {
     [Header("UI References")]
     public Text dialogueText;
@@ -11,19 +11,20 @@ public class PrologueSerif : MonoBehaviour
     
     [Header("Settings")]
     public float textSpeed = 0.05f;
-    string nextSceneName = "FamiryGachaScene";
+    string nextSceneName = "RealityBattle";
     
     [Header("Scene Transition")]
     public float transitionDelay = 1.0f;
 
+
     private string[] lines = {
-        "人生に迷い、希望を失った、哀れな人の子よ。",
-        "あなたに救いを与えましょう。",
-        "世界のルールを一瞬でかえる力……",
-        "そう、ガチャです。",
-        "いま引くべきか、後で引くべきか、人生はガチャのようなもの。",
-        "あなたの選択が、運命を変えるのです。",
-        "さあ、引くのです。"
+        "おかえりなさい、人の子よ。",
+        "その手に握りしめたもの",
+        "それがあなたの新たな運命の欠片。",
+        "ガチャはただの序章にすぎません。",
+        "運を天に任せる時間は、もう終わり。",
+        "これより、あなたの手で運命を紡ぐ……",
+        "本当の「ゲーム」を始めましょう。"
     };
 
     private int currentLine = 0;
@@ -91,7 +92,7 @@ public class PrologueSerif : MonoBehaviour
         Debug.Log("プロローグ終了。シーン遷移開始...");
         
         // 終了メッセージを表示
-        dialogueText.text = "ガチャの世界へ...";
+        dialogueText.text = "戦いの舞台へ...";
         
         // 指定された時間待機
         yield return new WaitForSeconds(transitionDelay);

@@ -1,5 +1,9 @@
 using UnityEngine;
 
+//音楽のフェード
+//違う音への切り替え
+
+
 [RequireComponent(typeof(AudioSource))]
 public class SimpleAudioPlayer : MonoBehaviour
 {
@@ -22,6 +26,7 @@ public class SimpleAudioPlayer : MonoBehaviour
         audioSource.playOnAwake = false;
         audioSource.loop = loop;
         audioSource.volume = volume;
+        Play(); // 初期状態で再生
     }
 
     public void Play()
