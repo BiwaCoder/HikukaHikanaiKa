@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using HikukaHikanaika.Logic;
 using HikukaHikanaika.Models;
 
@@ -16,18 +17,27 @@ public class GachaUIController : MonoBehaviour
     public HikukaHikanaika.Models.GachaType currentGachaType = HikukaHikanaika.Models.GachaType.FamilyWealth;
 
     private string[] gachaDescriptions = {
-        "💄 美貌を手に入れるガチャ 🌹\n\n絶世の美女か、平凡な容姿か──\n\n運命の分かれ道はここに！",
-        "🏰 家柄を手に入れるガチャ 🎲\n\n歴史に残る一族か、ただの庶民か──\n\nすべては引きどころ次第！",
-        "✨ 性格を手に入れるガチャ 💫\n\n魅力的な人格か、個性的な性格か──\n\nあなたの魅力が決まる瞬間！"
+        "💄 美貌ガチャ 🌹\n\n寿命2年を消費して、あなたの外見を決める運命の瞬間...\n\n美しさは時に人生を変える。",
+        "🏰 家柄ガチャ 🎲\n\n寿命2年を消費して、あなたの生まれを決める宿命のルーレット...\n\n血筋が示す、人生の道筋。",
+        "✨ 性格ガチャ 💫\n\n寿命2年を消費して、あなたの内面を形作る魂の選択...\n\n人格こそが、真の運命を決める。"
     };
 
     private int currentIndex = 0;
     private GachaLogic gachaLogic;
     private bool isProcessing = false;
+    private bool fromEventScene = false;
 
     void Start()
     {
         gachaLogic = GachaLogic.Instance;
+        
+        // イベントシーンから来たかどうかをチェック
+        fromEventScene = PlayerPrefs.GetInt("FromEventScene", 0) == 1;
+        if (fromEventScene)
+        {
+            PlayerPrefs.DeleteKey("FromEventScene");
+        }
+        
         ShowCurrentGacha();
         UpdateMoneyDisplay();
         UpdateStatusDisplay();
@@ -49,18 +59,7 @@ public class GachaUIController : MonoBehaviour
 
         if (priceText != null)
         {
-            switch (currentGachaType)
-            {
-                case HikukaHikanaika.Models.GachaType.Beauty:
-                    priceText.text = "価格: 3000万円";
-                    break;
-                case HikukaHikanaika.Models.GachaType.FamilyWealth:
-                    priceText.text = "価格: 6000万円";
-                    break;
-                case HikukaHikanaika.Models.GachaType.Personality:
-                    priceText.text = "価格: 2000万円";
-                    break;
-            }
+            priceText.text = "コスト: 寿命2年";
         }
     }
 
@@ -86,12 +85,51 @@ public class GachaUIController : MonoBehaviour
 
             UpdateMoneyDisplay();
             UpdateStatusDisplay();
+            
+            // ガチャ後の処理
+            HandlePostGachaFlow();
         }
         finally
         {
             isProcessing = false;
             gachaButton.interactable = true;
         }
+    }
+
+    void HandlePostGachaFlow()
+    {
+        var playerData = PlayerData.Instance;
+        
+        // ゲームオーバーチェック
+        if (playerData.IsGameOver())
+        {
+            // ゲームオーバーシーンへ遷移
+            StartCoroutine(TransitionToGameOver());
+            return;
+        }
+        
+        // イベントシーンから来た場合は、イベントシーンに戻る
+        if (fromEventScene)
+        {
+            StartCoroutine(TransitionToEventScene());
+            return;
+        }
+        
+        // 通常のガチャ進行：各ガチャ後にイベントへ移行
+        StartCoroutine(TransitionToEventScene());
+    }
+    
+    
+    System.Collections.IEnumerator TransitionToEventScene()
+    {
+        yield return new WaitForSeconds(2f);
+        SceneManager.LoadScene("LifeStageEventScene");
+    }
+    
+    System.Collections.IEnumerator TransitionToGameOver()
+    {
+        yield return new WaitForSeconds(2f);
+        SceneManager.LoadScene("GameOver");
     }
 
     //テキストの変更
@@ -105,7 +143,8 @@ public class GachaUIController : MonoBehaviour
     {
         if (moneyText != null && gachaLogic != null)
         {
-            moneyText.text = "所持金: " + gachaLogic.PlayerData.Money.ToString("N0") + "円";
+            var playerData = gachaLogic.PlayerData;
+            moneyText.text = $"寿命: {playerData.RemainingLifespan}年 | {playerData.GetLifeStage()}";
         }
     }
 

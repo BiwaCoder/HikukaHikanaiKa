@@ -39,22 +39,36 @@ namespace HikukaHikanaika.Logic
         
         public bool CanPerformGacha(GachaType gachaType)
         {
-            int cost = gachaModel.GetGachaCost(gachaType);
-            return PlayerData.CanAfford(cost);
+            const int LIFESPAN_COST = 2; // ガチャ1回につき2年消費
+            return PlayerData.CanAffordLifespan(LIFESPAN_COST);
         }
         
         public string PerformGacha(GachaType gachaType)
         {
-            int cost = gachaModel.GetGachaCost(gachaType);
+            const int LIFESPAN_COST = 2; // ガチャ1回につき2年消費
             
-            if (!PlayerData.CanAfford(cost))
+            if (PlayerData.IsGameOver())
             {
-                return "💸 お金が足りません！";
+                return "💀 人生が終了しています...";
             }
             
-            PlayerData.SpendMoney(cost);
+            if (!PlayerData.CanAffordLifespan(LIFESPAN_COST))
+            {
+                return "⏰ 寿命が足りません！残り" + PlayerData.RemainingLifespan + "年";
+            }
+            
+            PlayerData.SpendLifespan(LIFESPAN_COST);
             GachaItem pulledItem = gachaModel.PullGacha(gachaType);
-            return ProcessGachaResult(pulledItem, gachaType);
+            
+            string result = ProcessGachaResult(pulledItem, gachaType);
+            
+            // ガチャ後に寿命チェック
+            if (PlayerData.IsGameOver())
+            {
+                result += "\n\n💀 あなたの人生は終了しました...";
+            }
+            
+            return result;
         }
         
         private string ProcessGachaResult(GachaItem item, GachaType gachaType)

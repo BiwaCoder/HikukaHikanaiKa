@@ -19,13 +19,13 @@ public class PrologueSerif : MonoBehaviour
     public float transitionDelay = 1.0f;
 
     private string[] lines = {
-        "人生に迷い、希望を失った、哀れな人の子よ。",
-        "あなたに救いを与えましょう。",
-        "世界のルールを一瞬でかえる力……",
-        "そう、ガチャです。",
-        "いま引くべきか、後で引くべきか、人生はガチャのようなもの。",
-        "あなたの選択が、運命を変えるのです。",
-        "さあ、引くのです。"
+        "生まれたばかりの魂よ、これから始まる長い旅路を歩む準備はできているか？",
+        "あなたには80年という限られた時間が与えられた。",
+        "しかし、運命は固定されたものではない……",
+        "寿命を削り、ガチャを引くことで、あなたの人生は劇的に変わる。",
+        "美貌、家柄、性格──すべてはあなたの選択次第。",
+        "ただし、時は無情に過ぎ去る。寿命が尽きればゲームオーバーだ。",
+        "さあ、あなたの人生を賭けた壮大なガチャゲームの始まりです。"
     };
 
     private int currentLine = 0;
@@ -97,7 +97,7 @@ public class PrologueSerif : MonoBehaviour
         Debug.Log("プロローグ終了。シーン遷移開始...");
         
         // 終了メッセージを表示
-        dialogueText.text = "ガチャの世界へ...";
+        dialogueText.text = "人生という名のガチャゲームへ...";
         
         // 指定された時間待機
         yield return new WaitForSeconds(transitionDelay);
