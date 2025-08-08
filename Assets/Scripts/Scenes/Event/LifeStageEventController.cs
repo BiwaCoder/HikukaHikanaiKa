@@ -114,7 +114,6 @@ public class LifeStageEventController : MonoBehaviour
         string statusName = GetStatusName(currentEvent.requiredStatus);
         
         statusText.text = $"現在の{statusName}: {requiredStat}pt\n" +
-                         $"必要ポイント: {currentEvent.difficultyThreshold}pt\n" +
                          $"寿命: {playerData.RemainingLifespan}年 | {playerData.GetLifeStage()}";
     }
     
@@ -128,6 +127,12 @@ public class LifeStageEventController : MonoBehaviour
                 return playerData.CurrentOutfit?.points ?? 0;
             case BattleStatusType.Personality:
                 return playerData.CurrentPersonality?.points ?? 0;
+            case BattleStatusType.Luck:
+                return playerData.Luck;
+            case BattleStatusType.Concentration:
+                return playerData.Concentration;
+            case BattleStatusType.Kindness:
+                return playerData.Kindness;
             default:
                 return 0;
         }
@@ -140,6 +145,9 @@ public class LifeStageEventController : MonoBehaviour
             case BattleStatusType.Family: return "家柄";
             case BattleStatusType.Appearance: return "容姿";
             case BattleStatusType.Personality: return "性格";
+            case BattleStatusType.Luck: return "運";
+            case BattleStatusType.Concentration: return "集中力";
+            case BattleStatusType.Kindness: return "優しさ";
             default: return "不明";
         }
     }
@@ -172,42 +180,48 @@ public class LifeStageEventController : MonoBehaviour
         eventCompleted = true;
         challengeButton.interactable = false;
         gachaButton.interactable = false;
-        
+
         if (resultText != null)
             resultText.gameObject.SetActive(true);
-        
-        // チャレンジ処理
+
+        // 1. 結果を判定
         int playerStat = GetRequiredStatusValue();
-        bool success = playerStat >= currentEvent.difficultyThreshold;
-        
-        string resultMessage = success ? currentEvent.successText : currentEvent.failureText;
-        
-        // 結果表示
-        yield return StartCoroutine(TypeText(resultMessage));
-        
-        // 報酬/ペナルティ適用
-        if (success)
-        {
-            playerData.RemainingLifespan += currentEvent.successReward.lifespanBonus;
-            resultMessage += "\n\n🎉 " + currentEvent.successReward.description;
+        int threshold = currentEvent.difficultyThreshold;
+        EventResult result;
+
+        if (playerStat >= threshold * 1.5f) {
+            result = currentEvent.greatSuccess;
+        } else if (playerStat >= threshold) {
+            result = currentEvent.success;
+        } else if (playerStat >= threshold * 0.5f) {
+            result = currentEvent.failure;
+        } else {
+            result = currentEvent.greatFailure;
         }
-        else
-        {
-            playerData.SpendLifespan(currentEvent.failurePenalty.lifespanLoss);
-            resultMessage += "\n\n💔 " + currentEvent.failurePenalty.description;
-        }
-        
-        yield return StartCoroutine(TypeText(resultMessage));
-        
+
+        // 2. 寿命を変動させる
+        playerData.RemainingLifespan += result.lifespanChange;
+
+        // 3. 表示する最終的なメッセージを一度に組み立てる
+        string statusInfluence = $"({GetStatusName(currentEvent.requiredStatus)}が影響しました)";
+        string changeDescription = result.lifespanChange >= 0 ? "🎉" : "💔";
+        string finalMessage = $"{result.text}\n{statusInfluence}\n\n{changeDescription} {result.description}";
+
+        // ★★★ 結果を履歴に記録 ★★★
+        playerData.AddEventRecord(playerData.GetLifeStage(), currentEvent.eventTitle, result.text);
+
+        // 4. 最終的なメッセージを一度だけ表示する
+        yield return StartCoroutine(TypeText(finalMessage));
+
         // ゲームオーバーチェック
         if (playerData.IsGameOver())
         {
             yield return StartCoroutine(TypeText("\n\n💀 あなたの人生は終了しました..."));
             yield return new WaitForSeconds(3f);
-            SceneManager.LoadScene("GameOver"); // ゲームオーバーシーンへ
+            SceneManager.LoadScene("GameOver");
             yield break;
         }
-        
+
         yield return new WaitForSeconds(3f);
         AdvanceToNextStage();
     }
@@ -239,6 +253,14 @@ public class LifeStageEventController : MonoBehaviour
         
         if (playerData.LifeCycle >= 16 || playerData.IsGameOver())
         {
+            // ★★★ ゲーム終了時に履歴をログに出力 ★★★
+            Debug.Log("========== あなたの人生の軌跡 ==========");
+            foreach (var record in playerData.EventHistory)
+            {
+                Debug.Log($"【{record.LifeStage}】 {record.EventTitle} -> {record.ResultText}");
+            }
+            Debug.Log("======================================");
+
             // ゲーム終了
             SceneManager.LoadScene("GameEnd");
         }

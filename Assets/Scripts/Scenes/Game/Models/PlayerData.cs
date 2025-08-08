@@ -3,6 +3,21 @@ using UnityEngine;
 
 namespace HikukaHikanaika.Models
 {
+    // イベント結果を記録するためのデータ構造
+    public class GameEventRecord
+    {
+        public string LifeStage { get; }
+        public string EventTitle { get; }
+        public string ResultText { get; }
+
+        public GameEventRecord(string lifeStage, string eventTitle, string resultText)
+        {
+            LifeStage = lifeStage;
+            EventTitle = eventTitle;
+            ResultText = resultText;
+        }
+    }
+
     public class PlayerData
     {
         private static PlayerData instance;
@@ -12,7 +27,7 @@ namespace HikukaHikanaika.Models
             {
                 if (instance == null)
                 {
-                    instance = new PlayerData(); // デフォルト人生開始
+                    instance = new PlayerData();
                 }
                 return instance;
             }
@@ -20,9 +35,16 @@ namespace HikukaHikanaika.Models
         
         public string PlayerName { get; set; } = "あなた";
         public int CurrentAge { get; set; } = 0;
-        public int RemainingLifespan { get; set; } = 80; // 残り寿命（年）
-        public int LifeCycle { get; set; } = 0; // 現在のライフサイクル（0-15）
+        public int RemainingLifespan { get; set; } = 80;
+        public int LifeCycle { get; set; } = 0;
         
+        public int Luck { get; set; } = 0;
+        public int Concentration { get; set; } = 0;
+        public int Kindness { get; set; } = 0;
+
+        // ゲームイベントの履歴
+        public List<GameEventRecord> EventHistory { get; private set; }
+
         // 所持アイテム
         private HashSet<string> ownedBeautyItems = new HashSet<string>();
         private HashSet<string> ownedFamilyWealthItems = new HashSet<string>();
@@ -38,6 +60,10 @@ namespace HikukaHikanaika.Models
             CurrentAge = 0;
             RemainingLifespan = 80;
             LifeCycle = 0;
+            Luck = 10;
+            Concentration = 10;
+            Kindness = 10;
+            EventHistory = new List<GameEventRecord>(); // 履歴リストを初期化
         }
         
         public static void Initialize()
@@ -48,6 +74,12 @@ namespace HikukaHikanaika.Models
         public static void Reset()
         {
             instance = null;
+        }
+
+        // イベント履歴を追加するメソッド
+        public void AddEventRecord(string lifeStage, string eventTitle, string resultText)
+        {
+            EventHistory.Add(new GameEventRecord(lifeStage, eventTitle, resultText));
         }
         
         public bool HasItem(string itemName, GachaType type)
@@ -65,7 +97,7 @@ namespace HikukaHikanaika.Models
             return GetOwnedItemsSet(type);
         }
         
-        public int GetTotalPoints()
+        public int GetAppearancePoints()
         {
             int total = 0;
             total += CurrentOutfit?.points ?? 0;
@@ -74,6 +106,16 @@ namespace HikukaHikanaika.Models
             return total;
         }
         
+        public Dictionary<string, int> GetAllStatus()
+        {
+            var status = new Dictionary<string, int>();
+            status.Add("外見", GetAppearancePoints());
+            status.Add("運", Luck);
+            status.Add("集中力", Concentration);
+            status.Add("優しさ", Kindness);
+            return status;
+        }
+
         public void SpendLifespan(int years)
         {
             RemainingLifespan -= years;
@@ -88,7 +130,7 @@ namespace HikukaHikanaika.Models
         public void AdvanceAge()
         {
             LifeCycle++;
-            CurrentAge = LifeCycle * 5; // 5年毎
+            CurrentAge = LifeCycle * 5;
         }
         
         public bool IsAlive()

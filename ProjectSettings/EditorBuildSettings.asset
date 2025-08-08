@@ -20,4 +20,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Reality/RealityBattle.unity
     guid: 482bd7ae391fc4024b5453d3ba7c38df
+  - enabled: 1
+    path: Assets/Scenes/Reality/LifeStageEventScene.unity
+    guid: 4c9e744a79e1b4091a64cf449169ee06
   m_configObjects: {}

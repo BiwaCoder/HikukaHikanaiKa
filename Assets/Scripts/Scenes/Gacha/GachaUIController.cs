@@ -6,88 +6,77 @@ using HikukaHikanaika.Models;
 
 public class GachaUIController : MonoBehaviour
 {
+    [Header("UI References")]
     public Text descriptionText;
     public Text priceText;
     public Button gachaButton;
-    public Button nextButton;
+    public Button nextGachaButton; // ガチャ切り替えボタン
+    public Button toNextEventButton; // 次のイベントへ進むボタン
     public Text resultText;
-    public Text moneyText;
     public Text statusText;
+    public Text lifeStatusText;
 
-    public HikukaHikanaika.Models.GachaType currentGachaType = HikukaHikanaika.Models.GachaType.FamilyWealth;
-
-    private string[] gachaDescriptions = {
-        "💄 美貌ガチャ 🌹\n\n寿命2年を消費して、あなたの外見を決める運命の瞬間...\n\n美しさは時に人生を変える。",
-        "🏰 家柄ガチャ 🎲\n\n寿命2年を消費して、あなたの生まれを決める宿命のルーレット...\n\n血筋が示す、人生の道筋。",
-        "✨ 性格ガチャ 💫\n\n寿命2年を消費して、あなたの内面を形作る魂の選択...\n\n人格こそが、真の運命を決める。"
+    private GachaType[] allGachaTypes = 
+    {
+        GachaType.Beauty,
+        GachaType.FamilyWealth,
+        GachaType.Personality,
+        GachaType.Luck,
+        GachaType.Concentration,
+        GachaType.Kindness
     };
 
-    private int currentIndex = 0;
+    private string[] gachaDescriptions = 
+    {
+        "💄 美貌ガチャ 🌹\n\n寿命2年を消費して、あなたの外見を決める運命の瞬間...\n\n美しさは時に人生を変える。",
+        "🏰 家柄ガチャ 🎲\n\n寿命2年を消費して、あなたの生まれを決める宿命のルーレット...\n\n血筋が示す、人生の道筋。",
+        "✨ 性格ガチャ 💫\n\n寿命2年を消費して、あなたの内面を形作る魂の選択...\n\n人格こそが、真の運命を決める。",
+        "🍀 運ガチャ 🌟\n\n寿命2年を消費して、幸運を引き寄せる...\n\n見えざる力が、あなたの道を照らす。",
+        "🎯 集中力ガチャ 🧠\n\n寿命2年を消費して、精神を研ぎ澄ます...\n\n一点を見つめる力が、未来を切り開く。",
+        "💖 優しさガチャ 🥰\n\n寿命2年を消費して、心を温める...\n\n愛する心が、世界を優しく包む。"
+    };
+
+    private int currentGachaIndex = 0;
     private GachaLogic gachaLogic;
     private bool isProcessing = false;
-    private bool fromEventScene = false;
 
     void Start()
     {
         gachaLogic = GachaLogic.Instance;
         
-        // イベントシーンから来たかどうかをチェック
-        fromEventScene = PlayerPrefs.GetInt("FromEventScene", 0) == 1;
-        if (fromEventScene)
-        {
-            PlayerPrefs.DeleteKey("FromEventScene");
-        }
+        UpdateUI();
         
-        ShowCurrentGacha();
-        UpdateMoneyDisplay();
-        UpdateStatusDisplay();
-        
-        // 既存のリスナーをクリアしてから追加（重複防止）
-        gachaButton.onClick.RemoveAllListeners();
         gachaButton.onClick.AddListener(OnGachaClick);
-        
-        nextButton.onClick.RemoveAllListeners();
-        nextButton.onClick.AddListener(OnNextClick);
+        nextGachaButton.onClick.AddListener(OnNextGachaClick);
+        toNextEventButton.onClick.AddListener(OnClickNextScene);
     }
 
-    void ShowCurrentGacha()
+    void UpdateUI()
     {
-        if (descriptionText != null)
-        {
-            descriptionText.text = gachaDescriptions[(int)currentGachaType];
-        }
-
-        if (priceText != null)
-        {
-            priceText.text = "コスト: 寿命2年";
-        }
+        descriptionText.text = gachaDescriptions[currentGachaIndex];
+        priceText.text = "コスト: 寿命2年";
+        UpdateStatusDisplay();
     }
 
     public void OnGachaClick()
     {
-        if (isProcessing)
-        {
-            Debug.Log("ガチャ処理中のため、連打を無視します");
-            return;
-        }
+        if (isProcessing) return;
         
         isProcessing = true;
         gachaButton.interactable = false;
         
         try
         {
-            string result = gachaLogic.PerformGacha(currentGachaType);
+            GachaType selectedGacha = allGachaTypes[currentGachaIndex];
+            string result = gachaLogic.PerformGacha(selectedGacha);
+            if (resultText != null) resultText.text = result;
 
-            if (resultText != null)
-            {
-                resultText.text = result;
-            }
-
-            UpdateMoneyDisplay();
             UpdateStatusDisplay();
             
-            // ガチャ後の処理
-            HandlePostGachaFlow();
+            if (PlayerData.Instance.IsGameOver())
+            {
+                StartCoroutine(TransitionToGameOver());
+            }
         }
         finally
         {
@@ -96,34 +85,29 @@ public class GachaUIController : MonoBehaviour
         }
     }
 
-    void HandlePostGachaFlow()
+    public void OnNextGachaClick()
     {
-        var playerData = PlayerData.Instance;
-        
-        // ゲームオーバーチェック
-        if (playerData.IsGameOver())
-        {
-            // ゲームオーバーシーンへ遷移
-            StartCoroutine(TransitionToGameOver());
-            return;
-        }
-        
-        // イベントシーンから来た場合は、イベントシーンに戻る
-        if (fromEventScene)
-        {
-            StartCoroutine(TransitionToEventScene());
-            return;
-        }
-        
-        // 通常のガチャ進行：各ガチャ後にイベントへ移行
-        StartCoroutine(TransitionToEventScene());
+        currentGachaIndex = (currentGachaIndex + 1) % allGachaTypes.Length;
+        UpdateUI();
     }
-    
-    
-    System.Collections.IEnumerator TransitionToEventScene()
+
+    private void UpdateStatusDisplay()
     {
-        yield return new WaitForSeconds(2f);
-        SceneManager.LoadScene("LifeStageEventScene");
+        if (gachaLogic == null) return;
+
+        var playerData = gachaLogic.PlayerData;
+        
+        if (lifeStatusText != null)
+        {
+            lifeStatusText.text = $"寿命: {playerData.RemainingLifespan}年 | {playerData.GetLifeStage()}";
+        }
+
+        if (statusText != null)
+        {
+            var allStatus = playerData.GetAllStatus();
+            statusText.text = $"💄 美貌: {allStatus["外見"]} | 🏠 家柄: {allStatus["外見"]} | ✨ 性格: {allStatus["外見"]}\n" +
+                              $"🍀 運: {allStatus["運"]} | 🎯 集中力: {allStatus["集中力"]} | 💖 優しさ: {allStatus["優しさ"]}";
+        }
     }
     
     System.Collections.IEnumerator TransitionToGameOver()
@@ -132,41 +116,8 @@ public class GachaUIController : MonoBehaviour
         SceneManager.LoadScene("GameOver");
     }
 
-    //テキストの変更
-    public void OnNextClick()
-    {
-        currentGachaType = (HikukaHikanaika.Models.GachaType)(((int)currentGachaType + 1) % 3);
-        ShowCurrentGacha();
-    }
-
-    private void UpdateMoneyDisplay()
-    {
-        if (moneyText != null && gachaLogic != null)
-        {
-            var playerData = gachaLogic.PlayerData;
-            moneyText.text = $"寿命: {playerData.RemainingLifespan}年 | {playerData.GetLifeStage()}";
-        }
-    }
-
-    private void UpdateStatusDisplay()
-    {
-        if (statusText != null && gachaLogic != null)
-        {
-            var playerData = gachaLogic.PlayerData;
-            string status = "💄 美貌: " + (playerData.CurrentOutfit?.name ?? "なし") +
-                           (playerData.CurrentOutfit != null ? " (" + playerData.CurrentOutfit.points + ")" : "") + "\n" +
-                           "🏰 家柄: " + (playerData.CurrentFamilyWealth?.name ?? "なし") +
-                           (playerData.CurrentFamilyWealth != null ? " (" + playerData.CurrentFamilyWealth.points + ")" : "") + "\n" +
-                           "✨ 性格: " + (playerData.CurrentPersonality?.name ?? "なし") +
-                           (playerData.CurrentPersonality != null ? " (" + playerData.CurrentPersonality.points + ")" : "");
-
-            statusText.text = status;
-        }
-    }
-    
     public void OnClickNextScene()
     {
-        // 次のシーンに遷移する処理
-        UnityEngine.SceneManagement.SceneManager.LoadScene("BeforeGacha");
+        SceneManager.LoadScene("LifeStageEventScene");
     }
 }

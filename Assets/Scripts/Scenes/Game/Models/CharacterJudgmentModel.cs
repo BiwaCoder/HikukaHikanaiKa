@@ -15,6 +15,9 @@ namespace HikukaHikanaika.Models
         public string personality;
         public int personalityPoints;
         public int totalPoints;
+        public int luck;
+        public int concentration;
+        public int kindness;
         public DateTime createdAt;
         
         public CharacterJudgmentData(PlayerData playerData)
@@ -26,7 +29,10 @@ namespace HikukaHikanaika.Models
             familyWealthPoints = playerData.CurrentFamilyWealth?.points ?? 0;
             personality = playerData.CurrentPersonality?.name ?? "特になし";
             personalityPoints = playerData.CurrentPersonality?.points ?? 0;
-            totalPoints = playerData.GetTotalPoints();
+            totalPoints = playerData.GetAppearancePoints();
+            luck = playerData.Luck;
+            concentration = playerData.Concentration;
+            kindness = playerData.Kindness;
             createdAt = DateTime.Now;
         }
         
@@ -93,7 +99,10 @@ namespace HikukaHikanaika.Models
 服装: {CurrentCharacterData.outfit} (美容ポイント: {CurrentCharacterData.outfitPoints})
 家柄: {CurrentCharacterData.familyWealth} (家柄ポイント: {CurrentCharacterData.familyWealthPoints})
 性格: {CurrentCharacterData.personality} (性格ポイント: {CurrentCharacterData.personalityPoints})
-総合ポイント: {CurrentCharacterData.totalPoints}";
+運: {CurrentCharacterData.luck}
+集中力: {CurrentCharacterData.concentration}
+優しさ: {CurrentCharacterData.kindness}
+総合外見ポイント: {CurrentCharacterData.totalPoints}";
         }
     }
 }

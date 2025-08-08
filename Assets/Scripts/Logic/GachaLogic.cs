@@ -73,6 +73,13 @@ namespace HikukaHikanaika.Logic
         
         private string ProcessGachaResult(GachaItem item, GachaType gachaType)
         {
+            // 新しいステータスガチャの処理
+            if (gachaType == GachaType.Luck || gachaType == GachaType.Concentration || gachaType == GachaType.Kindness)
+            {
+                return UpdateStatus(item, gachaType);
+            }
+
+            // 既存の装備ガチャの処理
             if (PlayerData.HasItem(item.name, gachaType))
             {
                 return $"🎴 結果: {item.name}\n🔄 既に所持しています。";
@@ -81,45 +88,64 @@ namespace HikukaHikanaika.Logic
             PlayerData.AddItem(item.name, gachaType);
             return UpdateCurrentEquipment(item, gachaType);
         }
-        
-        private string UpdateCurrentEquipment(GachaItem item, GachaType gachaType)
+
+        private string UpdateStatus(GachaItem item, GachaType gachaType)
         {
             switch (gachaType)
             {
+                case GachaType.Luck:
+                    PlayerData.Luck += item.luck;
+                    return $"【運ガチャ結果】\n『{item.name}』を引いた！\n\n「見えざる力、信じる者は救われるのです...たぶん」\n\n🍀 運が {item.luck} 上昇！ (現在値: {PlayerData.Luck})";
+                case GachaType.Concentration:
+                    PlayerData.Concentration += item.concentration;
+                    return $"【集中力ガチャ結果】\n『{item.name}』を引いた！\n\n「これであなたも意識高い系。スタバでMacを開きましょう」\n\n🎯 集中力が {item.concentration} 上昇！ (現在値: {PlayerData.Concentration})";
+                case GachaType.Kindness:
+                    PlayerData.Kindness += item.kindness;
+                    return $"【優しさガチャ結果】\n『{item.name}』を引いた！\n\n「優しさは、時に利用されるだけ...なんて言わないであげてください」\n\n💖 優しさが {item.kindness} 上昇！ (現在値: {PlayerData.Kindness})";
+                default:
+                    return ""; // ここには来ないはず
+            }
+        }
+        
+        private string UpdateCurrentEquipment(GachaItem item, GachaType gachaType)
+        {
+            string previousItemName;
+            switch (gachaType)
+            {
                 case GachaType.Beauty:
+                    previousItemName = PlayerData.CurrentOutfit?.name ?? "布";
                     if (PlayerData.CurrentOutfit == null || item.points > PlayerData.CurrentOutfit.points)
                     {
-                        string previous = PlayerData.CurrentOutfit?.name ?? "何も着ていない";
                         PlayerData.CurrentOutfit = item;
-                        return $"🎴 結果: {item.name}\n👗 新しい服を装備！\n✨ 美容: {item.points} (前: {previous})";
+                        return $"【美貌ガチャ結果】\nSSR【{item.name}】キター！\n\n「{previousItemName}」を脱ぎ捨て、新たな自分へ。\n街を歩けば、誰もが振り返る...はず！";
                     }
                     else
                     {
-                        return $"🎴 結果: {item.name}\n📦 ワードローブに追加。\n現在の装備の方が良いので着替えません。";
+                        return $"【美貌ガチャ結果】\n『{item.name}』を引いた！\n\n...まあ、今の『{previousItemName}』の方がマシかな。\nタンスの肥やしがまた一つ増えました。";
                     }
                 
                 case GachaType.FamilyWealth:
+                    previousItemName = PlayerData.CurrentFamilyWealth?.name ?? "庶民";
                     if (PlayerData.CurrentFamilyWealth == null || item.points > PlayerData.CurrentFamilyWealth.points)
                     {
-                        string previous = PlayerData.CurrentFamilyWealth?.name ?? "特になし";
                         PlayerData.CurrentFamilyWealth = item;
-                        return $"🎴 結果: {item.name}\n🏠 新しい家柄を設定！\n💰 家柄: {item.points} (前: {previous})";
+                        return $"【家柄ガチャ結果】\nUR【{item.name}】降臨！\n\nもはやこれまでとは別人です。\n明日からあなたを見る目が変わります。たぶん。";
                     }
                     else
                     {
-                        return $"🎴 結果: {item.name}\n💼 プロフィールに追加。\n現在の家柄の方が良いので変更しません。";
+                        return $"【家柄ガチャ結果】\n『{item.name}』を引いた！\n\n今の『{previousItemName}』のほうが強そうなので、\nプロフィール帳の片隅にでも書いておきましょう。";
                     }
                 
                 case GachaType.Personality:
+                    previousItemName = PlayerData.CurrentPersonality?.name ?? "無個性";
                     if (PlayerData.CurrentPersonality == null || item.points > PlayerData.CurrentPersonality.points)
                     {
-                        string previous = PlayerData.CurrentPersonality?.name ?? "特になし";
                         PlayerData.CurrentPersonality = item;
-                        return $"🎴 結果: {item.name}\n😊 新しい性格を設定！\n🎆 性格: {item.points} (前: {previous})";
+                        return $"【性格ガチャ結果】\n★5【{item.name}】爆誕！\n\n「{previousItemName}」だった頃の記憶はもうありません。\nこれであなたもクラスの人気者...だといいね！";
                     }
                     else
                     {
-                        return $"🎴 結果: {item.name}\n📝 プロフィールに追加。\n現在の性格の方が良いので変更しません。";
+                        return $"【性格ガチャ結果】\n『{item.name}』を引いた！\n\n今の『{previousItemName}』のままでいいや...\nこれ以上ややこしくなるのは勘弁。";
                     }
                 
                 default:

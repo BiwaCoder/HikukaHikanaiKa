@@ -247,11 +247,11 @@ MonoBehaviour:
   descriptionText: {fileID: 1300287534}
   priceText: {fileID: 1299163965}
   gachaButton: {fileID: 506902833}
-  nextButton: {fileID: 535604062}
+  nextGachaButton: {fileID: 535604062}
+  toNextEventButton: {fileID: 242781346}
   resultText: {fileID: 817231122}
-  moneyText: {fileID: 1569077104}
   statusText: {fileID: 1143614485}
-  currentGachaType: 1
+  lifeStatusText: {fileID: 1569077104}
 --- !u!1 &242781344
 GameObject:
   m_ObjectHideFlags: 0

@@ -11,17 +11,17 @@ public class BeforeGachaSerif : MonoBehaviour
     
     [Header("Settings")]
     public float textSpeed = 0.05f;
-    string nextSceneName = "RealityBattle";
+    string nextSceneName = "LifeStageEventScene";
     
     [Header("Scene Transition")]
     public float transitionDelay = 1.0f;
 
     private string[] lines = {
-        "望んだ運命は手に入りましたか？",    
+        "望んだ運命は手に入りましたか？",
         "さて……",
-        "これから、あなたのゲームに挑んでもらいます。",    
-        "勝負は、一人の男性を射止められるかどうか。",
-        "さあ、勝って、運命を掴み取るのです。"
+        "これから、あなたの人生の各段階での出来事を体験してもらいます。",
+        "それぞれのステージで、あなたの選択が未来を形作ります。",
+        "さあ、あなたの物語を始めましょう。"
     };
 
     private int currentLine = 0;

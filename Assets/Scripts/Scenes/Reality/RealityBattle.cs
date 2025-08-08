@@ -156,9 +156,9 @@ public class RealityBattle : MonoBehaviour
         // 麗華のデータ設定
         reika = new RivalData(
             "麗華",
-            new GachaItem("オートクチュールのドレス", 0.1f, 150, GachaType.Beauty),
-            new GachaItem("日本史レベルの名家", 0.05f, 200, GachaType.FamilyWealth),
-            new GachaItem("天性の人たらし", 0.08f, 180, GachaType.Personality)
+            new GachaItem("オートクチュールのドレス", 0.1f, 150, 0, 0, 0, GachaType.Beauty),
+            new GachaItem("日本史レベルの名家", 0.05f, 200, 0, 0, 0, GachaType.FamilyWealth),
+            new GachaItem("天性の人たらし", 0.08f, 180, 0, 0, 0, GachaType.Personality)
         );
         
         // 男性が重視するステータスをランダム決定

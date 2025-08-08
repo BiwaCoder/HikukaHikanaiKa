@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 namespace HikukaHikanaika.Models
@@ -9,34 +8,32 @@ namespace HikukaHikanaika.Models
         public int lifeCycle; // 0-15のライフサイクル
         public string eventTitle; // イベント名
         public string eventDescription; // イベント説明
-        public string challengeText; // 挑戦時のテキスト
         public BattleStatusType requiredStatus; // 必要なステータス
         public int difficultyThreshold; // 成功に必要なポイント
-        public string successText; // 成功時テキスト
-        public string failureText; // 失敗時テキスト
-        public EventReward successReward; // 成功時報酬
-        public EventPenalty failurePenalty; // 失敗時ペナルティ
+
+        // 結果を4段階に細分化
+        public EventResult greatSuccess; // 大成功
+        public EventResult success;      // 成功
+        public EventResult failure;      // 失敗
+        public EventResult greatFailure; // 大失敗
     }
 
     [System.Serializable]
-    public class EventReward
+    public class EventResult
     {
-        public int lifespanBonus; // 寿命ボーナス
-        public string description; // 報酬説明
-    }
-
-    [System.Serializable]
-    public class EventPenalty
-    {
-        public int lifespanLoss; // 寿命ペナルティ
-        public string description; // ペナルティ説明
+        public string text; // 結果表示テキスト
+        public int lifespanChange; // 寿命の変動 (+で増加, -で減少)
+        public string description; // 報酬/ペナルティの説明
     }
 
     public enum BattleStatusType
     {
         Family,     // 家柄
         Appearance, // 容姿
-        Personality // 性格
+        Personality, // 性格
+        Luck, // 運
+        Concentration, // 集中力
+        Kindness // 優しさ
     }
 
     public class LifeStageEventData
@@ -45,244 +42,228 @@ namespace HikukaHikanaika.Models
         {
             return new List<LifeStageEvent>
             {
-                // 0-5歳: 幼児期
+                // 0-5歳: 幼児期 (優しさ)
                 new LifeStageEvent
                 {
                     lifeCycle = 0,
-                    eventTitle = "💝 家族の愛情",
-                    eventDescription = "生まれたばかりのあなた。家族からどれだけ愛されるかが、今後の人生に大きく影響します。",
-                    challengeText = "現在の家柄ステータスで家族の愛情を獲得しますか？",
-                    requiredStatus = BattleStatusType.Family,
-                    difficultyThreshold = 50,
-                    successText = "温かい家族の愛に包まれ、安定した幼児期を過ごしました。",
-                    failureText = "家族の愛情不足により、不安定な幼児期を過ごすことになりました。",
-                    successReward = new EventReward { lifespanBonus = 3, description = "愛情により寿命+3年" },
-                    failurePenalty = new EventPenalty { lifespanLoss = 1, description = "ストレスで寿命-1年" }
+                    eventTitle = "💝 小さな親切",
+                    eventDescription = "公園で転んだ友達。あなたは優しく手を差し伸べることができますか？",
+                    requiredStatus = BattleStatusType.Kindness,
+                    difficultyThreshold = 15,
+                    greatSuccess = new EventResult { text = "あなたの純粋な優しさは、友達だけでなく、周りの大人たちの心も温めました。", lifespanChange = 2, description = "人徳が上がり、寿命+2年" },
+                    success = new EventResult { text = "あなたの優しさに友達は感謝し、二人は親友になりました。", lifespanChange = 1, description = "心の成長で寿命+1年" },
+                    failure = new EventResult { text = "見て見ぬふりをしたことで、少しだけ罪悪感を覚えました。", lifespanChange = 0, description = "小さな後悔" },
+                    greatFailure = new EventResult { text = "突き放したあなたの態度に、友達は深く傷ついてしまいました。", lifespanChange = -1, description = "ちょっと気まずくなり寿命-1年" }
                 },
 
-                // 5-10歳: 児童期
+                // 5-10歳: 児童期 (理不尽な高難易度イベント)
                 new LifeStageEvent
                 {
                     lifeCycle = 1,
-                    eventTitle = "🎒 学校デビュー",
-                    eventDescription = "小学校での初日。クラスメイトとうまくやっていけるかが重要です。",
-                    challengeText = "現在の性格ステータスで友達作りに挑戦しますか？",
-                    requiredStatus = BattleStatusType.Personality,
-                    difficultyThreshold = 40,
-                    successText = "すぐにクラスの人気者になり、楽しい学校生活を送りました。",
-                    failureText = "なかなか友達ができず、孤独な学校生活を過ごしました。",
-                    successReward = new EventReward { lifespanBonus = 2, description = "友情による充実感で寿命+2年" },
-                    failurePenalty = new EventPenalty { lifespanLoss = 1, description = "孤独感で寿命-1年" }
+                    eventTitle = "🎒 謎の転校生",
+                    eventDescription = "全てが完璧な謎の転校生がやってきた。なぜかあなたに勝負を挑んでくる！",
+                    requiredStatus = BattleStatusType.Appearance,
+                    difficultyThreshold = 150,
+                    greatSuccess = new EventResult { text = "誰もが驚くことに、あなたは謎の転校生に勝利した！あなたの名は伝説となった。", lifespanChange = 10, description = "若くして伝説となり、寿命+10年" },
+                    success = new EventResult { text = "奇跡的に、転校生と引き分けることができた。", lifespanChange = 1, description = "自信がつき、寿命+1年" },
+                    failure = new EventResult { text = "転校生に完膚なきまでに叩きのめされた...。", lifespanChange = -3, description = "悔しくて三日三晩泣き続け、寿命-3年" },
+                    greatFailure = new EventResult { text = "彼の圧倒的な力の前に、あなたの心は折れてしまった。", lifespanChange = -5, description = "恥ずかしいあだ名をつけられ、寿命-5年" }
                 },
 
-                // 10-15歳: 思春期
+                // 10-15歳: 思春期 (運)
                 new LifeStageEvent
                 {
                     lifeCycle = 2,
-                    eventTitle = "💕 初恋の相手",
-                    eventDescription = "思春期の訪れと共に、初恋の相手が現れました。告白する勇気はありますか？",
-                    challengeText = "現在の容姿ステータスで初恋に挑戦しますか？",
-                    requiredStatus = BattleStatusType.Appearance,
-                    difficultyThreshold = 60,
-                    successText = "甘酸っぱい初恋を経験し、青春を満喫しました。",
-                    failureText = "初恋は実らず、恋愛に対して消極的になってしまいました。",
-                    successReward = new EventReward { lifespanBonus = 3, description = "恋愛の喜びで寿命+3年" },
-                    failurePenalty = new EventPenalty { lifespanLoss = 2, description = "失恋のショックで寿命-2年" }
+                    eventTitle = "テストのヤマ勘",
+                    eventDescription = "明日は大事なテスト。一夜漬けのヤマ勘は当たるのか？",
+                    requiredStatus = BattleStatusType.Luck,
+                    difficultyThreshold = 40,
+                    greatSuccess = new EventResult { text = "ヤマが完璧に的中！学年トップの成績を収め、ヒーローになりました。", lifespanChange = 5, description = "強運の持ち主として寿命+5年" },
+                    success = new EventResult { text = "見事にヤマが当たり、テストは高得点！", lifespanChange = 2, description = "幸運に感謝して寿命+2年" },
+                    failure = new EventResult { text = "ヤマは外れ、テスト結果は散々でした。", lifespanChange = -1, description = "現実の厳しさを知り寿命-1年" },
+                    greatFailure = new EventResult { text = "ヤマが全く当たらず、赤点を取ってしまいました。", lifespanChange = -3, description = "補習地獄で夏休みがなくなり寿命-3年" }
                 },
 
-                // 15-20歳: 青春期
+                // 15-20歳: 青春期 (集中力)
                 new LifeStageEvent
                 {
                     lifeCycle = 3,
-                    eventTitle = "🎓 進路選択",
-                    eventDescription = "高校卒業を控え、進路を決める重要な時期。理想の進路に進めるでしょうか？",
-                    challengeText = "現在の総合ステータスで理想の進路獲得に挑戦しますか？",
-                    requiredStatus = BattleStatusType.Personality,
-                    difficultyThreshold = 80,
-                    successText = "希望通りの進路に進み、充実した青春時代を過ごしました。",
-                    failureText = "妥協した進路選択となり、将来への不安を抱えることになりました。",
-                    successReward = new EventReward { lifespanBonus = 4, description = "希望達成で寿命+4年" },
-                    failurePenalty = new EventPenalty { lifespanLoss = 2, description = "ストレスで寿命-2年" }
+                    eventTitle = "受験戦争",
+                    eventDescription = "人生を左右する大学受験。あなたは集中して勉強に取り組めるか？",
+                    requiredStatus = BattleStatusType.Concentration,
+                    difficultyThreshold = 100,
+                    greatSuccess = new EventResult { text = "驚異的な集中力で、見事第一志望の大学に合格した！", lifespanChange = 7, description = "輝かしい未来が約束され、寿命+7年" },
+                    success = new EventResult { text = "努力が実り、無事に大学に合格。キャンパスライフが始まる。", lifespanChange = 3, description = "達成感で寿命+3年" },
+                    failure = new EventResult { text = "受験に失敗。滑り止めの大学に行くことになった...。", lifespanChange = -4, description = "不本意な進路にやる気をなくし寿命-4年" },
+                    greatFailure = new EventResult { text = "全ての大学に落ちた...。しかし、進学した専門学校であなたの隠れた才能が爆発！その道のカリスマとなった。", lifespanChange = 10, description = "我が道を見出し、寿命+10年" }
                 },
 
-                // 20-25歳: 就職期
+                // 20-25歳: 就職期 (笑える失敗)
                 new LifeStageEvent
                 {
                     lifeCycle = 4,
-                    eventTitle = "💼 就職活動",
-                    eventDescription = "社会人デビューの時。理想の会社に就職できるかが人生を大きく左右します。",
-                    challengeText = "現在のステータスで夢の企業への就職に挑戦しますか？",
+                    eventTitle = "💼 黒歴史な自己PR",
+                    eventDescription = "最終面接。ウケを狙って、渾身の自己PRを披露する！",
                     requiredStatus = BattleStatusType.Personality,
-                    difficultyThreshold = 100,
-                    successText = "憧れの企業に就職し、やりがいのある仕事に就けました。",
-                    failureText = "希望とは違う職に就き、日々に不満を感じるようになりました。",
-                    successReward = new EventReward { lifespanBonus = 5, description = "やりがいで寿命+5年" },
-                    failurePenalty = new EventPenalty { lifespanLoss = 3, description = "職場ストレスで寿命-3年" }
+                    difficultyThreshold = 180,
+                    greatSuccess = new EventResult { text = "あなたの自己PRが社長に大ウケ！『面白い人材だ』と即採用が決まった！", lifespanChange = 15, description = "コミュ力で世界を掴み、寿命+15年" },
+                    success = new EventResult { text = "自己PRはスベったが、真面目さが評価され、無事内定を得た。", lifespanChange = 8, description = "安定した職を得て寿命+8年" },
+                    failure = new EventResult { text = "面接官はドン引き。気まずい空気のまま面接は終わった...。", lifespanChange = -10, description = "思い出したくない黒歴史が生まれ、寿命-10年" },
+                    greatFailure = new EventResult { text = "あなたの自己PRはネットで晒され、伝説の『ヤバい奴』として有名になってしまった。", lifespanChange = -20, description = "デジタルタトゥーの恐怖に震え、寿命-20年" }
                 },
 
-                // 25-30歳: 成人期
+                // 25-30歳: 成人期 (家柄)
                 new LifeStageEvent
                 {
                     lifeCycle = 5,
-                    eventTitle = "💒 結婚相手",
-                    eventDescription = "理想のパートナーとの出会い。一生を共にする相手を見つけられるでしょうか？",
-                    challengeText = "現在の容姿ステータスで理想の結婚相手獲得に挑戦しますか？",
-                    requiredStatus = BattleStatusType.Appearance,
+                    eventTitle = "💒 運命の結婚",
+                    eventDescription = "生涯のパートナーを決める時。あなたの家柄は、相手にどう映るでしょうか？",
+                    requiredStatus = BattleStatusType.Family,
                     difficultyThreshold = 120,
-                    successText = "素晴らしいパートナーと結婚し、幸せな家庭を築きました。",
-                    failureText = "理想の相手は見つからず、独身のまま過ごすことになりました。",
-                    successReward = new EventReward { lifespanBonus = 6, description = "愛情と安定で寿命+6年" },
-                    failurePenalty = new EventPenalty { lifespanLoss = 2, description = "孤独感で寿命-2年" }
+                    greatSuccess = new EventResult { text = "あなたの素晴らしい家柄が決め手となり、玉の輿に乗りました！", lifespanChange = 8, description = "盤石な生活基盤を得て寿命+8年" },
+                    success = new EventResult { text = "良いご縁に恵まれ、幸せな結婚生活が始まりました。", lifespanChange = 5, description = "心の安らぎを得て寿命+5年" },
+                    failure = new EventResult { text = "家柄の違いから、結婚に反対されてしまいました。", lifespanChange = -3, description = "破談のショックで寿命-3年" },
+                    greatFailure = new EventResult { text = "あなたの家柄を知った相手は、静かに去っていきました。", lifespanChange = -6, description = "埋められない格差に絶望し寿命-6年" }
                 },
 
-                // 30-35歳: 責任期
+                // 30-35歳: 責任期 (優しさ)
                 new LifeStageEvent
                 {
                     lifeCycle = 6,
-                    eventTitle = "👨‍💼 昇進チャンス",
-                    eventDescription = "重要なプロジェクトのリーダーに抜擢されました。成功すれば大きな昇進が待っています。",
-                    challengeText = "現在の性格ステータスで昇進に挑戦しますか？",
-                    requiredStatus = BattleStatusType.Personality,
-                    difficultyThreshold = 140,
-                    successText = "プロジェクトは大成功！重要なポストに昇進しました。",
-                    failureText = "プロジェクトは失敗...昇進の機会を逃してしまいました。",
-                    successReward = new EventReward { lifespanBonus = 4, description = "達成感で寿命+4年" },
-                    failurePenalty = new EventPenalty { lifespanLoss = 3, description = "失敗の重圧で寿命-3年" }
+                    eventTitle = "🤝 人望",
+                    eventDescription = "部下や後輩から、あなたはどれだけ慕われているでしょうか？",
+                    requiredStatus = BattleStatusType.Kindness,
+                    difficultyThreshold = 130,
+                    greatSuccess = new EventResult { text = "あなたの優しさは伝説となり、多くの人があなたを心から尊敬しています。", lifespanChange = 8, description = "揺るぎない人望を得て寿命+8年" },
+                    success = new EventResult { text = "部下から慕われ、チームは最高の成果を上げました。", lifespanChange = 4, description = "良好な人間関係が活力となり寿命+4年" },
+                    failure = new EventResult { text = "部下との間に溝ができ、チームの雰囲気は最悪です。", lifespanChange = -2, description = "人間関係のストレスで寿命-2年" },
+                    greatFailure = new EventResult { text = "あなたの厳しい態度に、部下全員が辞めてしまいました。", lifespanChange = -6, description = "孤独な管理職となり寿命-6年" }
                 },
 
-                // 35-40歳: 充実期
+                // 35-40歳: 充実期 (性格)
                 new LifeStageEvent
                 {
                     lifeCycle = 7,
                     eventTitle = "🏠 マイホーム購入",
-                    eventDescription = "念願のマイホーム購入のチャンス。理想の住まいを手に入れられるでしょうか？",
-                    challengeText = "現在の家柄ステータスで理想の家購入に挑戦しますか？",
-                    requiredStatus = BattleStatusType.Family,
+                    eventDescription = "念願のマイホーム。しかし、隣人との関係が重要になる。",
+                    requiredStatus = BattleStatusType.Personality,
                     difficultyThreshold = 160,
-                    successText = "理想の家を購入し、充実した生活を送っています。",
-                    failureText = "予算の関係で妥協した家になり、不満を感じています。",
-                    successReward = new EventReward { lifespanBonus = 5, description = "安住の地で寿命+5年" },
-                    failurePenalty = new EventPenalty { lifespanLoss = 2, description = "住環境ストレスで寿命-2年" }
+                    greatSuccess = new EventResult { text = "隣人ともすぐに打ち解け、地域で最も愛される家族になりました。", lifespanChange = 7, description = "最高のコミュニティに恵まれ寿命+7年" },
+                    success = new EventResult { text = "ご近所付き合いもそつなくこなし、快適なマイホーム生活を送っています。", lifespanChange = 3, description = "安住の地を得て寿命+3年" },
+                    failure = new EventResult { text = "隣人トラブルに巻き込まれ、心休まる日がありません。", lifespanChange = -4, description = "ご近所ストレスで寿命-4年" },
+                    greatFailure = new EventResult { text = "あなたは地域から孤立し、マイホームは安らぎの場ではなくなりました。", lifespanChange = -9, description = "安住の地を失い寿命-9年" }
                 },
 
-                // 40-45歳: 中年期
+                // 40-45歳: 中年期 (笑える大失敗)
                 new LifeStageEvent
                 {
                     lifeCycle = 8,
-                    eventTitle = "🌟 人生の転機",
-                    eventDescription = "中年期の危機。このまま現状維持か、新たな挑戦をするか重要な選択の時です。",
-                    challengeText = "現在の総合ステータスで新しい挑戦をしますか？",
-                    requiredStatus = BattleStatusType.Personality,
-                    difficultyThreshold = 180,
-                    successText = "新たな挑戦は成功し、人生に新しい意味を見出しました。",
-                    failureText = "挑戦は失敗に終わり、現状維持のまま時が過ぎました。",
-                    successReward = new EventReward { lifespanBonus = 7, description = "新たな目標で寿命+7年" },
-                    failurePenalty = new EventPenalty { lifespanLoss = 3, description = "後悔と諦めで寿命-3年" }
+                    eventTitle = "💍 世紀のプロポーズ",
+                    eventDescription = "人生を賭けたプロポーズ！フラッシュモブを企画し、彼女を驚かせよう！",
+                    requiredStatus = BattleStatusType.Luck,
+                    difficultyThreshold = 250,
+                    greatSuccess = new EventResult { text = "プロポーズは大成功！動画は世界中に拡散され、あなたは『愛の伝道師』と呼ばれた！", lifespanChange = 30, description = "世界中から祝福され、寿命+30年" },
+                    success = new EventResult { text = "プロポーズは成功したが、フラッシュモブは彼女に少し引かれた。", lifespanChange = 2, description = "何はともあれ幸せになり、寿命+2年" },
+                    failure = new EventResult { text = "盛大にスベった...。プロポーズは保留になった。", lifespanChange = -10, description = "恥ずかしさで1年間寝込み、寿命-10年" },
+                    greatFailure = new EventResult { text = "『あなたじゃない、そこのダンサーの人が好き』...あなたは盛大にフラれた。", lifespanChange = -30, description = "世紀の勘違いとして歴史に名を刻み、寿命-30年" }
                 },
-
-                // 45-50歳: 成熟期
+                
+                // 45-50歳: 成熟期 (集中力)
                 new LifeStageEvent
                 {
                     lifeCycle = 9,
-                    eventTitle = "👪 家族との絆",
-                    eventDescription = "家族関係の重要性を感じる時期。良好な関係を築けているでしょうか？",
-                    challengeText = "現在の性格ステータスで家族の絆を深めますか？",
-                    requiredStatus = BattleStatusType.Personality,
-                    difficultyThreshold = 160,
-                    successText = "家族との絆は深まり、温かい関係を築けています。",
-                    failureText = "家族との関係はぎくしゃくし、距離を感じています。",
-                    successReward = new EventReward { lifespanBonus = 5, description = "家族の支えで寿命+5年" },
-                    failurePenalty = new EventPenalty { lifespanLoss = 4, description = "家族問題のストレスで寿命-4年" }
+                    eventTitle = "🎨 趣味の世界",
+                    eventDescription = "長年続けた趣味。個展を開き、世に作品を問う時が来た。",
+                    requiredStatus = BattleStatusType.Concentration,
+                    difficultyThreshold = 200,
+                    greatSuccess = new EventResult { text = "あなたの作品は世界的に評価され、歴史に名を残す芸術家となった。", lifespanChange = 12, description = "生きがいがあなたを輝かせ、寿命+12年" },
+                    success = new EventResult { text = "個展は成功し、あなたの作品は多くの人に感動を与えた。", lifespanChange = 6, description = "趣味が認められ、寿命+6年" },
+                    failure = new EventResult { text = "あなたの作品は、誰にも評価されなかった。", lifespanChange = -3, description = "創作意欲を失い、寿命-3年" },
+                    greatFailure = new EventResult { text = "「時間の無駄だった」と酷評され、あなたの心は深く傷ついた。", lifespanChange = -7, description = "生きる意味を見失い、寿命-7年" }
                 },
 
-                // 50-55歳: 転換期
+                // 50-55歳: 転換期 (家柄)
                 new LifeStageEvent
                 {
                     lifeCycle = 10,
-                    eventTitle = "💡 新事業立ち上げ",
-                    eventDescription = "長年の経験を活かし、独立起業のチャンスが訪れました。",
-                    challengeText = "現在の総合ステータスで起業に挑戦しますか？",
+                    eventTitle = "🏛️ 名誉職への推薦",
+                    eventDescription = "あなたの家柄が評価され、名誉ある地位への推薦があった。",
                     requiredStatus = BattleStatusType.Family,
-                    difficultyThreshold = 200,
-                    successText = "事業は軌道に乗り、第二の人生が始まりました。",
-                    failureText = "事業は失敗し、大きな損失を被りました。",
-                    successReward = new EventReward { lifespanBonus = 8, description = "成功の喜びで寿命+8年" },
-                    failurePenalty = new EventPenalty { lifespanLoss = 5, description = "失敗の重圧で寿命-5年" }
+                    difficultyThreshold = 220,
+                    greatSuccess = new EventResult { text = "あなたは一族の誇りとなり、歴史に名を刻むことになった。", lifespanChange = 10, description = "最高の栄誉を得て、寿命+10年" },
+                    success = new EventResult { text = "名誉職に就き、穏やかで尊敬される日々を送っている。", lifespanChange = 5, description = "社会的な地位が安定し、寿命+5年" },
+                    failure = new EventResult { text = "一族の不祥事が発覚し、推薦は取り消された。", lifespanChange = -5, description = "一族の名に泥を塗り、寿命-5年" },
+                    greatFailure = new EventResult { text = "あなたの家柄は、もはや何の価値も持たないと宣告された。", lifespanChange = -10, description = "プライドが打ち砕かれ、寿命-10年" }
                 },
 
-                // 55-60歳: 安定期
+                // 55-60歳: 安定期 (容姿)
                 new LifeStageEvent
                 {
                     lifeCycle = 11,
-                    eventTitle = "🎨 趣味の世界",
-                    eventDescription = "これまで時間がなくてできなかった趣味に本格的に取り組む時期です。",
-                    challengeText = "現在のステータスで趣味の世界で成果を出しますか？",
-                    requiredStatus = BattleStatusType.Personality,
-                    difficultyThreshold = 140,
-                    successText = "趣味の世界で認められ、生きがいを見つけました。",
-                    failureText = "趣味も長続きせず、退屈な日々を過ごしています。",
-                    successReward = new EventReward { lifespanBonus = 4, description = "生きがいで寿命+4年" },
-                    failurePenalty = new EventPenalty { lifespanLoss = 2, description = "無気力で寿命-2年" }
+                    eventTitle = "✨ アンチエイジング",
+                    eventDescription = "若々しさを保つための努力。その成果は現れるか。",
+                    requiredStatus = BattleStatusType.Appearance,
+                    difficultyThreshold = 180,
+                    greatSuccess = new EventResult { text = "あなたの美貌は年齢を超越し、時の流れを止めたかのようです。", lifespanChange = 8, description = "美の追求が実を結び寿命+8年" },
+                    success = new EventResult { text = "若々しい見た目を保ち、充実した日々を送っています。", lifespanChange = 4, description = "自信に満ちた生活で寿命+4年" },
+                    failure = new EventResult { text = "年齢には勝てず、容姿の衰えを感じています。", lifespanChange = -2, description = "老いへの不安で寿命-2年" },
+                    greatFailure = new EventResult { text = "無理な若作りがたたり、かえって老け込んでしまいました。", lifespanChange = -5, description = "心身の不調で寿命-5年" }
                 },
 
-                // 60-65歳: 準備期
+                // 60-65歳: 準備期 (優しさ)
                 new LifeStageEvent
                 {
                     lifeCycle = 12,
-                    eventTitle = "🎓 次世代への教育",
-                    eventDescription = "これまでの経験を若い世代に伝える機会が訪れました。",
-                    challengeText = "現在の知識で若者を指導しますか？",
-                    requiredStatus = BattleStatusType.Personality,
-                    difficultyThreshold = 160,
-                    successText = "多くの若者を育て、社会に貢献することができました。",
-                    failureText = "若い世代とのギャップを感じ、上手く指導できませんでした。",
-                    successReward = new EventReward { lifespanBonus = 6, description = "社会貢献の満足感で寿命+6年" },
-                    failurePenalty = new EventPenalty { lifespanLoss = 2, description = "世代ギャップのストレスで寿命-2年" }
+                    eventTitle = "💖 地域への貢献",
+                    eventDescription = "ボランティア活動への参加。あなたの優しさは地域を豊かにするか。",
+                    requiredStatus = BattleStatusType.Kindness,
+                    difficultyThreshold = 200,
+                    greatSuccess = new EventResult { text = "あなたの活動が高く評価され、名誉市民の称号を授与されました。", lifespanChange = 10, description = "社会への貢献が認められ寿命+10年" },
+                    success = new EventResult { text = "地域の人々から感謝され、充実した日々を送っています。", lifespanChange = 5, description = "人との繋がりに感謝し寿命+5年" },
+                    failure = new EventResult { text = "自己満足の活動となり、誰からも感謝されませんでした。", lifespanChange = -2, description = "孤独感で寿命-2年" },
+                    greatFailure = new EventResult { text = "良かれと思ってしたことが、大きなトラブルに発展してしまいました。", lifespanChange = -8, description = "人間不信に陥り寿命-8年" }
                 },
 
-                // 65-70歳: シニア期
+                // 65-70歳: シニア期 (笑える失敗)
                 new LifeStageEvent
                 {
                     lifeCycle = 13,
-                    eventTitle = "🌅 健康管理",
-                    eventDescription = "健康が気になる年齢。今後の健康維持が重要になってきました。",
-                    challengeText = "現在のライフスタイルで健康維持に取り組みますか？",
-                    requiredStatus = BattleStatusType.Personality,
-                    difficultyThreshold = 120,
-                    successText = "健康的な生活を続け、元気なシニアライフを送っています。",
-                    failureText = "健康管理が上手くいかず、体調を崩しがちです。",
-                    successReward = new EventReward { lifespanBonus = 5, description = "健康維持で寿命+5年" },
-                    failurePenalty = new EventPenalty { lifespanLoss = 4, description = "健康問題で寿命-4年" }
+                    eventTitle = "📱 若者文化への挑戦",
+                    eventDescription = "孫にウケたい一心で、流行りのSNSに挑戦！果たして『いいね』はもらえるか？",
+                    requiredStatus = BattleStatusType.Luck, // 流行りは運
+                    difficultyThreshold = 280,
+                    greatSuccess = new EventResult { text = "あなたの投稿が謎のアルゴリズムに乗り、世界的な大バズりを記録した！", lifespanChange = 15, description = "インフルエンサーとして第二の人生が始まり、寿命+15年" },
+                    success = new EventResult { text = "孫やその友達にウケて、少しだけ人気者になれた。", lifespanChange = 7, description = "若者との交流が刺激になり、寿命+7年" },
+                    failure = new EventResult { text = "あなたの投稿は、誰にも見向きもされなかった...。", lifespanChange = -15, description = "時代の流れについていけず、寿命-15年" },
+                    greatFailure = new EventResult { text = "あなたの投稿が『痛い』とネットニュースになり、炎上してしまった。", lifespanChange = -40, description = "ネットリンチの恐怖に震え、寿命-40年" }
                 },
 
-                // 70-75歳: 長老期
+                // 70-75歳: 長老期 (家柄)
                 new LifeStageEvent
                 {
                     lifeCycle = 14,
-                    eventTitle = "📚 人生の記録",
-                    eventDescription = "これまでの人生を振り返り、自叙伝を書く機会が訪れました。",
-                    challengeText = "現在の経験値で人生の記録を残しますか？",
-                    requiredStatus = BattleStatusType.Personality,
-                    difficultyThreshold = 180,
-                    successText = "素晴らしい自叙伝が完成し、多くの人に感動を与えました。",
-                    failureText = "思うような記録は残せませんでしたが、それも人生です。",
-                    successReward = new EventReward { lifespanBonus = 4, description = "達成感で寿命+4年" },
-                    failurePenalty = new EventPenalty { lifespanLoss = 1, description = "軽い後悔で寿命-1年" }
+                    eventTitle = "📚 自叙伝の出版",
+                    eventDescription = "あなたの人生を綴った本。一族の名誉を高めることができるか。",
+                    requiredStatus = BattleStatusType.Family,
+                    difficultyThreshold = 250,
+                    greatSuccess = new EventResult { text = "自叙伝は世界的なベストセラーとなり、一族は永遠の栄光を手に入れた。", lifespanChange = 12, description = "歴史に名を刻み、寿命+12年" },
+                    success = new EventResult { text = "あなたの人生は多くの人に感銘を与え、一族の誇りとなった。", lifespanChange = 6, description = "人生の集大成が認められ、寿命+6年" },
+                    failure = new EventResult { text = "自叙伝は誰にも読まれず、静かに忘れ去られた。", lifespanChange = -4, description = "過去の栄光が色褪せ、寿命-4年" },
+                    greatFailure = new EventResult { text = "一族の恥を晒したと、激しい非難を浴びた。", lifespanChange = -9, description = "晩節を汚し、寿命-9年" }
                 },
 
-                // 75-80歳: 晩年期
+                // 75-80歳: 晩年期 (性格)
                 new LifeStageEvent
                 {
                     lifeCycle = 15,
                     eventTitle = "🕊️ 人生の総括",
-                    eventDescription = "長い人生の最終章。あなたはどのような人生を歩んだのでしょうか？",
-                    challengeText = "これまでの人生の総括をしますか？",
+                    eventDescription = "長い人生の最終章。あなたはどのような人間として記憶されるのでしょうか？",
                     requiredStatus = BattleStatusType.Personality,
-                    difficultyThreshold = 200,
-                    successText = "充実した人生だったと心から思えます。多くの人に愛され、安らかな気持ちです。",
-                    failureText = "後悔も多い人生でしたが、それでも生きてこられて良かったと思います。",
-                    successReward = new EventReward { lifespanBonus = 3, description = "人生の満足感で寿命+3年" },
-                    failurePenalty = new EventPenalty { lifespanLoss = 0, description = "後悔はあるが人生を受け入れる" }
+                    difficultyThreshold = 300,
+                    greatSuccess = new EventResult { text = "あなたの人生は伝説となり、後世まで語り継がれるでしょう。", lifespanChange = 20, description = "完璧な人生を全うし寿命+20年" },
+                    success = new EventResult { text = "多くの人に愛され、穏やかで幸せな最期を迎えることができました。", lifespanChange = 10, description = "満足感に包まれ寿命+10年" },
+                    failure = new EventResult { text = "後悔の念に苛まれながら、静かに人生の終わりを待ちます。", lifespanChange = -5, description = "満たされない思いが寿命を削る" },
+                    greatFailure = new EventResult { text = "誰からも看取られることなく、孤独な最期を迎えました。", lifespanChange = -20, description = "虚無感の中で寿命が尽きる" }
                 }
             };
         }

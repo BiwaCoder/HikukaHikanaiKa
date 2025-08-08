@@ -38,8 +38,12 @@ namespace HikukaHikanaika.Views
                 string personalityInfo = player.CurrentPersonality != null 
                     ? $"😊 性格: {player.CurrentPersonality.name} (ポイント{player.CurrentPersonality.points})" 
                     : "😊 性格: 特になし (ポイント 0)";
+
+                string luckInfo = $"🍀 運: {player.Luck}";
+                string concentrationInfo = $"🎯 集中力: {player.Concentration}";
+                string kindnessInfo = $"💖 優しさ: {player.Kindness}";
                 
-                statusText.text = $"📊 プレイヤーステータス\n{outfitInfo}\n{familyInfo}\n{personalityInfo}\n\n🎆 合計ポイント: {player.GetTotalPoints()}";
+                statusText.text = $"📊 プレイヤーステータス\n{outfitInfo}\n{familyInfo}\n{personalityInfo}\n\n{luckInfo}\n{concentrationInfo}\n{kindnessInfo}\n\n🎆 合計外見ポイント: {player.GetAppearancePoints()}";
             }
         }
         
