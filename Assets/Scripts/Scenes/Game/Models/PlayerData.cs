@@ -1,9 +1,23 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace HikukaHikanaika.Models
 {
     public class PlayerData
     {
+        private static PlayerData instance;
+        public static PlayerData Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = new PlayerData(300000000); // デフォルト3億円
+                }
+                return instance;
+            }
+        }
+        
         public string PlayerName { get; set; } = "あなた";
         public int Money { get; set; }
         
@@ -17,9 +31,19 @@ namespace HikukaHikanaika.Models
         public GachaItem CurrentFamilyWealth { get; set; }
         public GachaItem CurrentPersonality { get; set; }
         
-        public PlayerData(int initialMoney)
+        private PlayerData(int initialMoney)
         {
             Money = initialMoney;
+        }
+        
+        public static void Initialize(int initialMoney = 300000000)
+        {
+            instance = new PlayerData(initialMoney);
+        }
+        
+        public static void Reset()
+        {
+            instance = null;
         }
         
         public bool HasItem(string itemName, GachaType type)

@@ -7,6 +7,8 @@ using UnityEngine;
 [RequireComponent(typeof(AudioSource))]
 public class SimpleAudioPlayer : MonoBehaviour
 {
+    public static SimpleAudioPlayer Instance { get; private set; }
+    
     public AudioClip audioClip;   // 再生したいMP3（WAVでもOK）
     [Range(0f, 1f)]
     public float volume = 1.0f;   // 音量
@@ -16,17 +18,27 @@ public class SimpleAudioPlayer : MonoBehaviour
 
     void Awake()
     {
-        audioSource = GetComponent<AudioSource>();
-
-        if (audioClip != null)
+        if (Instance == null)
         {
-            audioSource.clip = audioClip;
-        }
+            Instance = this;
+            DontDestroyOnLoad(this.gameObject);
+            
+            audioSource = GetComponent<AudioSource>();
 
-        audioSource.playOnAwake = false;
-        audioSource.loop = loop;
-        audioSource.volume = volume;
-        Play(); // 初期状態で再生
+            if (audioClip != null)
+            {
+                audioSource.clip = audioClip;
+            }
+
+            audioSource.playOnAwake = false;
+            audioSource.loop = loop;
+            audioSource.volume = volume;
+            Play(); // 初期状態で再生
+        }
+        else
+        {
+            Destroy(this.gameObject);
+        }
     }
 
     public void Play()

@@ -2,6 +2,8 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using HikukaHikanaika.Models;
+using HikukaHikanaika.Logic;
 
 public class PrologueSerif : MonoBehaviour
 {
@@ -32,6 +34,10 @@ public class PrologueSerif : MonoBehaviour
 
     void Start()
     {
+        // シングルトンを初期化
+        PlayerData.Initialize();
+        GachaLogic.Initialize();
+        
         if (dialogueText == null || clickableArea == null)
         {
             Debug.LogError("TextかImageが未設定です！");

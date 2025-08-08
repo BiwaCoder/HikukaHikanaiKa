@@ -14,7 +14,7 @@ public class GachaUIController : MonoBehaviour
     public Text statusText;
 
     public HikukaHikanaika.Models.GachaType currentGachaType = HikukaHikanaika.Models.GachaType.FamilyWealth;
-    
+
     private string[] gachaDescriptions = {
         "💄 美貌を手に入れるガチャ 🌹\n\n絶世の美女か、平凡な容姿か──\n\n運命の分かれ道はここに！",
         "🏰 家柄を手に入れるガチャ 🎲\n\n歴史に残る一族か、ただの庶民か──\n\nすべては引きどころ次第！",
@@ -23,14 +23,20 @@ public class GachaUIController : MonoBehaviour
 
     private int currentIndex = 0;
     private GachaLogic gachaLogic;
+    private bool isProcessing = false;
 
     void Start()
     {
-        gachaLogic = new GachaLogic();
+        gachaLogic = GachaLogic.Instance;
         ShowCurrentGacha();
         UpdateMoneyDisplay();
         UpdateStatusDisplay();
+        
+        // 既存のリスナーをクリアしてから追加（重複防止）
+        gachaButton.onClick.RemoveAllListeners();
         gachaButton.onClick.AddListener(OnGachaClick);
+        
+        nextButton.onClick.RemoveAllListeners();
         nextButton.onClick.AddListener(OnNextClick);
     }
 
@@ -40,7 +46,7 @@ public class GachaUIController : MonoBehaviour
         {
             descriptionText.text = gachaDescriptions[(int)currentGachaType];
         }
-        
+
         if (priceText != null)
         {
             switch (currentGachaType)
@@ -60,15 +66,32 @@ public class GachaUIController : MonoBehaviour
 
     public void OnGachaClick()
     {
-        string result = gachaLogic.PerformGacha(currentGachaType);
-        
-        if (resultText != null)
+        if (isProcessing)
         {
-            resultText.text = result;
+            Debug.Log("ガチャ処理中のため、連打を無視します");
+            return;
         }
         
-        UpdateMoneyDisplay();
-        UpdateStatusDisplay();
+        isProcessing = true;
+        gachaButton.interactable = false;
+        
+        try
+        {
+            string result = gachaLogic.PerformGacha(currentGachaType);
+
+            if (resultText != null)
+            {
+                resultText.text = result;
+            }
+
+            UpdateMoneyDisplay();
+            UpdateStatusDisplay();
+        }
+        finally
+        {
+            isProcessing = false;
+            gachaButton.interactable = true;
+        }
     }
 
     //テキストの変更
@@ -77,7 +100,7 @@ public class GachaUIController : MonoBehaviour
         currentGachaType = (HikukaHikanaika.Models.GachaType)(((int)currentGachaType + 1) % 3);
         ShowCurrentGacha();
     }
-    
+
     private void UpdateMoneyDisplay()
     {
         if (moneyText != null && gachaLogic != null)
@@ -85,20 +108,26 @@ public class GachaUIController : MonoBehaviour
             moneyText.text = "所持金: " + gachaLogic.PlayerData.Money.ToString("N0") + "円";
         }
     }
-    
+
     private void UpdateStatusDisplay()
     {
         if (statusText != null && gachaLogic != null)
         {
             var playerData = gachaLogic.PlayerData;
-            string status = "💄 美貌: " + (playerData.CurrentOutfit?.name ?? "なし") + 
+            string status = "💄 美貌: " + (playerData.CurrentOutfit?.name ?? "なし") +
                            (playerData.CurrentOutfit != null ? " (" + playerData.CurrentOutfit.points + ")" : "") + "\n" +
-                           "🏰 家柄: " + (playerData.CurrentFamilyWealth?.name ?? "なし") + 
+                           "🏰 家柄: " + (playerData.CurrentFamilyWealth?.name ?? "なし") +
                            (playerData.CurrentFamilyWealth != null ? " (" + playerData.CurrentFamilyWealth.points + ")" : "") + "\n" +
-                           "✨ 性格: " + (playerData.CurrentPersonality?.name ?? "なし") + 
+                           "✨ 性格: " + (playerData.CurrentPersonality?.name ?? "なし") +
                            (playerData.CurrentPersonality != null ? " (" + playerData.CurrentPersonality.points + ")" : "");
-            
+
             statusText.text = status;
         }
+    }
+    
+    public void OnClickNextScene()
+    {
+        // 次のシーンに遷移する処理
+        UnityEngine.SceneManagement.SceneManager.LoadScene("BeforeGacha");
     }
 }

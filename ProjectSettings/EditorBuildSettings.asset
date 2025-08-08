@@ -15,6 +15,9 @@ EditorBuildSettings:
     path: Assets/Scenes/Gacha/FamiryGachaScene.unity
     guid: a9d254ae3e5174d089bd874bd2adf281
   - enabled: 1
-    path: Assets/Scenes/Reality/BattleStart.unity
+    path: Assets/Scenes/Reality/BeforeGacha.unity
     guid: e8cec2117ac184d4dbd1b7c6ece1c29c
+  - enabled: 1
+    path: Assets/Scenes/Reality/RealityBattle.unity
+    guid: 482bd7ae391fc4024b5453d3ba7c38df
   m_configObjects: {}

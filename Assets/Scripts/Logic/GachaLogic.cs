@@ -5,45 +5,66 @@ namespace HikukaHikanaika.Logic
 {
     public class GachaLogic
     {
-        private GachaModel gachaModel;
-        private PlayerData playerData;
-        
-        public GachaLogic()
+        private static GachaLogic instance;
+        public static GachaLogic Instance
         {
-            gachaModel = new GachaModel();
-            playerData = new PlayerData(300000000); // 3億円
+            get
+            {
+                if (instance == null)
+                {
+                    instance = new GachaLogic();
+                }
+                return instance;
+            }
         }
         
-        public PlayerData PlayerData => playerData;
+        private GachaModel gachaModel;
+        
+        private GachaLogic()
+        {
+            gachaModel = new GachaModel();
+        }
+        
+        public static void Initialize()
+        {
+            instance = new GachaLogic();
+        }
+        
+        public static void Reset()
+        {
+            instance = null;
+        }
+        
+        public PlayerData PlayerData => PlayerData.Instance;
         
         public bool CanPerformGacha(GachaType gachaType)
         {
             int cost = gachaModel.GetGachaCost(gachaType);
-            return playerData.CanAfford(cost);
+            return PlayerData.CanAfford(cost);
         }
         
         public string PerformGacha(GachaType gachaType)
         {
             int cost = gachaModel.GetGachaCost(gachaType);
             
-            if (!playerData.CanAfford(cost))
+            if (!PlayerData.CanAfford(cost))
             {
                 return "💸 お金が足りません！";
             }
             
-            playerData.SpendMoney(cost);
+            PlayerData.SpendMoney(cost);
             GachaItem pulledItem = gachaModel.PullGacha(gachaType);
             return ProcessGachaResult(pulledItem, gachaType);
         }
         
         private string ProcessGachaResult(GachaItem item, GachaType gachaType)
         {
-            if (playerData.HasItem(item.name, gachaType))
+            if (PlayerData.HasItem(item.name, gachaType))
             {
                 return $"🎴 結果: {item.name}\n🔄 既に所持しています。";
             }
             
-            playerData.AddItem(item.name, gachaType);
+            PlayerData.AddItem(item.name, gachaType);
             return UpdateCurrentEquipment(item, gachaType);
         }
         
@@ -52,10 +73,10 @@ namespace HikukaHikanaika.Logic
             switch (gachaType)
             {
                 case GachaType.Beauty:
-                    if (playerData.CurrentOutfit == null || item.points > playerData.CurrentOutfit.points)
+                    if (PlayerData.CurrentOutfit == null || item.points > PlayerData.CurrentOutfit.points)
                     {
-                        string previous = playerData.CurrentOutfit?.name ?? "何も着ていない";
-                        playerData.CurrentOutfit = item;
+                        string previous = PlayerData.CurrentOutfit?.name ?? "何も着ていない";
+                        PlayerData.CurrentOutfit = item;
                         return $"🎴 結果: {item.name}\n👗 新しい服を装備！\n✨ 美容: {item.points} (前: {previous})";
                     }
                     else
@@ -64,10 +85,10 @@ namespace HikukaHikanaika.Logic
                     }
                 
                 case GachaType.FamilyWealth:
-                    if (playerData.CurrentFamilyWealth == null || item.points > playerData.CurrentFamilyWealth.points)
+                    if (PlayerData.CurrentFamilyWealth == null || item.points > PlayerData.CurrentFamilyWealth.points)
                     {
-                        string previous = playerData.CurrentFamilyWealth?.name ?? "特になし";
-                        playerData.CurrentFamilyWealth = item;
+                        string previous = PlayerData.CurrentFamilyWealth?.name ?? "特になし";
+                        PlayerData.CurrentFamilyWealth = item;
                         return $"🎴 結果: {item.name}\n🏠 新しい家柄を設定！\n💰 家柄: {item.points} (前: {previous})";
                     }
                     else
@@ -76,10 +97,10 @@ namespace HikukaHikanaika.Logic
                     }
                 
                 case GachaType.Personality:
-                    if (playerData.CurrentPersonality == null || item.points > playerData.CurrentPersonality.points)
+                    if (PlayerData.CurrentPersonality == null || item.points > PlayerData.CurrentPersonality.points)
                     {
-                        string previous = playerData.CurrentPersonality?.name ?? "特になし";
-                        playerData.CurrentPersonality = item;
+                        string previous = PlayerData.CurrentPersonality?.name ?? "特になし";
+                        PlayerData.CurrentPersonality = item;
                         return $"🎴 結果: {item.name}\n😊 新しい性格を設定！\n🎆 性格: {item.points} (前: {previous})";
                     }
                     else

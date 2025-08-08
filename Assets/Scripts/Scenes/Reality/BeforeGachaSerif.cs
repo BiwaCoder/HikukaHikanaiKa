@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-public class BattleSerif : MonoBehaviour
+public class BeforeGachaSerif : MonoBehaviour
 {
     [Header("UI References")]
     public Text dialogueText;
@@ -11,19 +11,17 @@ public class BattleSerif : MonoBehaviour
     
     [Header("Settings")]
     public float textSpeed = 0.05f;
-    string nextSceneName = "FamiryGachaScene";
+    string nextSceneName = "RealityBattle";
     
     [Header("Scene Transition")]
     public float transitionDelay = 1.0f;
 
     private string[] lines = {
-        "煌びやかなシャンデリアが照らすステージ。",
-        "ここが、あなたの運命を決める舞台。",
-        "▼ OPPONENT  麗華 (Reika)\n * 家柄: 日本史に名を刻む名家\n * 容姿: オートクチュールを纏う芸術品 \n * 性格: 天性の支配者（人たらし）",
-        "『麗華』\n ごきげんよう。\n わたくしとゲームができるなんて、光栄に思いなさいな\n\n",
+        "望んだ運命は手に入りましたか？",    
+        "さて……",
+        "これから、あなたのゲームに挑んでもらいます。",    
         "勝負は、一人の男性を射止められるかどうか。",
-        "さあ、あなたの選択肢は。",
-        "*A:親しみやすさで勝負する\n*B:知性で興味を引く\n*C:庇護欲をくすぐる",
+        "さあ、勝って、運命を掴み取るのです。"
     };
 
 
