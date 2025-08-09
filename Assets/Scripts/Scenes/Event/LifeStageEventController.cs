@@ -59,16 +59,12 @@ public class LifeStageEventController : MonoBehaviour
     
     void LoadCurrentEvent()
     {
-        // 神の道ルートチェック（上位5%プレイヤー専用）
-        if (playerData.CanAccessDivinePath())
-        {
-            currentEvent = CheckForDivinePathEvent();
-        }
-        
-        // 神の道イベントがなければ高基準限定イベントをチェック
+        // 神の道イベントは AdvanceToNextStage で判定・分岐するため、ここでは通常のイベント取得ロジックに統合
+        currentEvent = CheckForDivinePathEvent(); // 神の道挑戦中の審判イベントをチェック
+
         if (currentEvent == null)
         {
-            currentEvent = CheckForHighStatEvent();
+            currentEvent = CheckForHighStatEvent(); // 高ステータスイベントをチェック
         }
         
         if (currentEvent == null)
@@ -444,41 +440,37 @@ public class LifeStageEventController : MonoBehaviour
     void AdvanceToNextStage()
     {
         playerData.AdvanceAge();
-        
-        if (playerData.LifeCycle >= 20 || playerData.IsGameOver())
+
+        // 魂片が尽きた場合のゲームオーバーを最優先でチェック
+        if (playerData.IsGameOver() && playerData.RemainingTenmei <= 0)
         {
-            // 神になった場合の特別エンディング
-            if (playerData.LifeCycle >= 20)
-            {
-                StartCoroutine(ShowDivineEnding());
-            }
-            else
-            {
-                // 人生の軌跡を表示
-                StartCoroutine(ShowLifeHistory());
-            }
+            StartCoroutine(ShowAngelGameOver());
+            return;
         }
-        else if (playerData.LifeCycle >= 16)
+
+        int currentCycle = playerData.LifeCycle;
+
+        if (currentCycle == 16) // 80歳になった瞬間。ここで神の道への分岐を判定する。
         {
-            // 神の道ルートに入った場合の通知
-            if (playerData.CanAccessDivinePath() && playerData.LifeCycle == 16)
+            if (playerData.CanAccessDivinePath())
             {
+                // 神の道ルートに進む
                 StartCoroutine(ShowDivinePathOpening());
             }
-            else if (playerData.LifeCycle >= 16)
-            {
-                // 通常の人生完了（神の道に入れなかった場合）
-                StartCoroutine(ShowLifeHistory());
-            }
             else
             {
-                // 通常の進行
-                SceneManager.LoadScene("FamiryGachaScene");
+                // 条件を満たせなかったので、通常エンディング
+                StartCoroutine(ShowLifeHistory());
             }
         }
-        else
+        else if (currentCycle >= 20) // 神の道の試練を終えた後
         {
-            // 次のガチャフェーズへ
+            // 最終的な神エンディングを判定
+            StartCoroutine(ShowDivineEnding());
+        }
+        else // 通常のライフサイクル（80歳未満） or 神の道挑戦中（16-19歳）
+        {
+            // 次のイベント（ガチャ or 審判）へ
             SceneManager.LoadScene("FamiryGachaScene");
         }
     }
