@@ -1,0 +1,185 @@
+using System.Collections;
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+using HikukaHikanaika.Models;
+
+public class TrueEndingController : MonoBehaviour
+{
+    [Header("UI References")]
+    public Text dialogueText;
+    public Image clickableArea;
+    
+    [Header("Settings")]
+    public float textSpeed = 0.05f;
+    
+    [Header("Scene Transition")]
+    public float transitionDelay = 1.0f;
+
+    private string[] trueEndingLines = {
+        "🌟 \"全ての審判を乗り越えました...\"",
+        "",  // 人生の軌跡を挿入する場所
+        "👑 \"完璧なる神として昇天なさいましたね♡\"",
+        "✨ \"わたしも、あなたに仕える天使として永遠に従います\"",
+        "🌟 あなたは新たな宇宙の創造主となりました",
+        "🎉 【TRUE END：神への昇格】",
+        "👼 \"本当に素晴らしい結末でしたね♡\"",
+        "😇 \"また新しい人生を歩まれますか？\""
+    };
+
+    private int currentLine = 0;
+    private bool isTyping = false;
+    private bool canProceed = false;
+    private bool lifeHistoryShown = false;
+    private PlayerData playerData;
+
+    void Start()
+    {
+        playerData = PlayerData.Instance;
+        
+        if (dialogueText == null || clickableArea == null)
+        {
+            Debug.LogError("TextかImageが未設定です！");
+            return;
+        }
+
+        clickableArea.GetComponent<Image>().raycastTarget = true;
+        clickableArea.GetComponent<Button>()?.onClick.AddListener(OnClick);
+
+        // 最初のセリフ表示
+        StartCoroutine(TypeLine(trueEndingLines[currentLine]));
+    }
+
+    public void OnClick()
+    {
+        Debug.Log("クリックされました");
+
+        if (isTyping)
+        {
+            StopAllCoroutines();
+            if (currentLine == 1 && !lifeHistoryShown)
+            {
+                // 人生の軌跡表示中はスキップできない
+                return;
+            }
+            dialogueText.text = trueEndingLines[currentLine];
+            isTyping = false;
+            canProceed = true;
+        }
+        else if (canProceed)
+        {
+            currentLine++;
+            if (currentLine == 1) // 人生の軌跡を表示する位置
+            {
+                StartCoroutine(ShowLifeHistory());
+            }
+            else if (currentLine < trueEndingLines.Length)
+            {
+                StartCoroutine(TypeLine(trueEndingLines[currentLine]));
+            }
+            else
+            {
+                // 全てのセリフが終了したらリトライ待機
+                StartCoroutine(WaitForRetryInput());
+            }
+            canProceed = false;
+        }
+    }
+
+    IEnumerator TypeLine(string line)
+    {
+        Debug.Log("描画開始");
+        isTyping = true;
+        dialogueText.text = "";
+        foreach (char c in line)
+        {
+            dialogueText.text += c;
+            yield return new WaitForSeconds(textSpeed);
+        }
+        isTyping = false;
+        canProceed = true;
+    }
+
+    IEnumerator ShowLifeHistory()
+    {
+        isTyping = true;
+        lifeHistoryShown = true;
+        
+        yield return StartCoroutine(TypeText("\n\n========== 神の道までの人生の軌跡 ==========\n"));
+        yield return new WaitForSeconds(1f);
+        
+        foreach (var record in playerData.EventHistory)
+        {
+            string historyLine = $"【{record.LifeStage}】\n{record.EventTitle}\n-> {record.ResultText}";
+            yield return StartCoroutine(TypeText(historyLine + "\n\n"));
+            yield return new WaitForSeconds(0.8f);
+        }
+        
+        yield return StartCoroutine(TypeText("======================================\n"));
+        yield return new WaitForSeconds(2f);
+        
+        isTyping = false;
+        canProceed = true;
+    }
+
+    IEnumerator TypeText(string text)
+    {
+        foreach (char c in text)
+        {
+            dialogueText.text += c;
+            yield return new WaitForSeconds(textSpeed);
+        }
+    }
+    
+    IEnumerator WaitForRetryInput()
+    {
+        yield return StartCoroutine(TypeText("\n📝 【スペースキーでリトライ】\n"));
+        
+        while (true)
+        {
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                yield return StartCoroutine(TypeText("\n👼 \"それでは、新しい運命を引き寄せましょう♡\"\n"));
+                yield return new WaitForSeconds(1f);
+                
+                StartCoroutine(ReturnToPrologue());
+                yield break;
+            }
+            yield return null; // 1フレーム待機
+        }
+    }
+    
+    IEnumerator ReturnToPrologue()
+    {
+        Debug.Log("トゥルーエンド終了。プロローグシーンに戻ります...");
+        
+        // 終了メッセージを表示
+        dialogueText.text = "新たな運命へ...";
+        
+        // 指定された時間待機
+        yield return new WaitForSeconds(transitionDelay);
+        
+        // ステータスを初期化してPrologueシーンへ
+        PlayerData.Initialize();
+        
+        try
+        {
+            SceneManager.LoadScene("Prologue");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"シーン 'Prologue' の読み込みに失敗しました: {e.Message}");
+            
+            // フォールバック: インデックスでの遷移を試行
+            try
+            {
+                SceneManager.LoadScene(0); // プロローグシーン
+            }
+            catch (System.Exception fallbackE)
+            {
+                Debug.LogError($"フォールバックシーン遷移も失敗: {fallbackE.Message}");
+                dialogueText.text = "シーン遷移エラー。ゲームを再起動してください。";
+            }
+        }
+    }
+}

@@ -342,7 +342,8 @@ public class LifeStageEventController : MonoBehaviour
         // ゲームオーバーチェック
         if (playerData.IsGameOver())
         {
-            yield return StartCoroutine(ShowAngelGameOver());
+            // バッドエンドシーンに遷移
+            SceneManager.LoadScene("BadEndingScene");
             yield break;
         }
 
@@ -459,7 +460,8 @@ public class LifeStageEventController : MonoBehaviour
         // 魂片が尽きた場合のゲームオーバーを最優先でチェック
         if (playerData.IsGameOver() && playerData.RemainingTenmei <= 0)
         {
-            StartCoroutine(ShowAngelGameOver());
+            // バッドエンドシーンに遷移
+            SceneManager.LoadScene("BadEndingScene");
             return;
         }
 
@@ -578,15 +580,9 @@ public class LifeStageEventController : MonoBehaviour
         
         if (playerData.RemainingTenmei >= 1000)
         {
-            // 完全神エンディング
-            yield return StartCoroutine(TypeText("👑 \"完璧なる神として昇天なさいましたね♡\"\n"));
-            yield return new WaitForSeconds(1.5f);
-            yield return StartCoroutine(TypeText("✨ \"わたしも、あなたに仕える天使として\n永遠に従います\"\n"));
-            yield return new WaitForSeconds(1.5f);
-            yield return StartCoroutine(TypeText("🌟 あなたは新たな宇宙の創造主となりました\n"));
-            yield return new WaitForSeconds(2f);
-            yield return StartCoroutine(TypeText("🎉 【TRUE END：神への昇格】\nお疲れさまでした！\n"));
-            yield return StartCoroutine(TypeText("👼 \"本当に素晴らしい結末でしたね♡\""));
+            // トゥルーエンドシーンに遷移
+            SceneManager.LoadScene("TrueEndingScene");
+            yield break;
         }
         else if (playerData.RemainingTenmei >= 500)
         {
