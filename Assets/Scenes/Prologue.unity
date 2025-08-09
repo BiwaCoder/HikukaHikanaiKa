@@ -787,6 +787,8 @@ MonoBehaviour:
   clickableArea: {fileID: 1419988843}
   textSpeed: 0.1
   transitionDelay: 1
+  debugMaxStats: 1
+  debugStartAt70: 1
 --- !u!1001 &8823223055407134616
 PrefabInstance:
   m_ObjectHideFlags: 0

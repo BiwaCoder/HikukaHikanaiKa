@@ -592,7 +592,7 @@ public class LifeStageEventController : MonoBehaviour
         yield return new WaitForSeconds(2f);
 
         // 神の道突入前に、ここまでの人生の軌跡をエンドロール表示
-        yield return StartCoroutine(TypeText("\n\n========== ここまでの人生の軌跡 =========="));
+        //yield return StartCoroutine(TypeText("\n\n========== ここまでの人生の軌跡 =========="));
         //yield return StartCoroutine(ShowLifeHistory());
         
         SceneManager.LoadScene("FamiryGachaScene");
