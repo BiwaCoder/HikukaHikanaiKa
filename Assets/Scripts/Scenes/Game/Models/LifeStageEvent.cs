@@ -154,18 +154,18 @@ namespace HikukaHikanaika.Models
                     greatFailure = new EventResult { text = "あなたは地域から孤立し、マイホームは安らぎの場ではなくなりました。", tenmeiChange = -9, description = "安住の地を失い魂片-9" }
                 },
 
-                // 40-45歳: 中年期 (笑える大失敗)
+                // 40-45歳: 中年期 (運)
                 new LifeStageEvent
                 {
                     lifeCycle = 8,
-                    eventTitle = "💍 世紀のプロポーズ",
-                    eventDescription = "人生を賭けたプロポーズ！フラッシュモブを企画し、彼女を驚かせよう！",
+                    eventTitle = "💰 投資の誘惑",
+                    eventDescription = "「絶対に儲かる」という、少し怪しい投資話。一攫千金を夢見て、この話に乗りますか？",
                     requiredStatus = BattleStatusType.Luck,
-                    difficultyThreshold = 250,
-                    greatSuccess = new EventResult { text = "プロポーズは大成功！動画は世界中に拡散され、あなたは『愛の伝道師』と呼ばれた！", tenmeiChange = 30, description = "世界中から祝福され、魂片+30" },
-                    success = new EventResult { text = "プロポーズは成功したが、フラッシュモブは彼女に少し引かれた。", tenmeiChange = 2, description = "何はともあれ幸せになり、魂片+2" },
-                    failure = new EventResult { text = "盛大にスベった...。プロポーズは保留になった。", tenmeiChange = -10, description = "恥ずかしさで1年間寝込み、魂片-10" },
-                    greatFailure = new EventResult { text = "『あなたじゃない、そこのダンサーの人が好き』...あなたは盛大にフラれた。", tenmeiChange = -30, description = "世紀の勘違いとして歴史に名を刻み、魂片-30" }
+                    difficultyThreshold = 200,
+                    greatSuccess = new EventResult { text = "投資は大成功！あなたは巨万の富を得て、悠々自適の生活を手に入れた。", tenmeiChange = 25, description = "金の力で全てを解決し、魂片+25" },
+                    success = new EventResult { text = "投資はまずまずの成功。少しだけお小遣いが増えた。", tenmeiChange = 5, description = "臨時収入で魂片+5" },
+                    failure = new EventResult { text = "案の定、投資は失敗。けっこうな額を失ってしまった...", tenmeiChange = -15, description = "経済的な打撃で魂片-15" },
+                    greatFailure = new EventResult { text = "典型的な詐欺だった！全財産を失い、明日からの生活もままならない。", tenmeiChange = -35, description = "社会の厳しさを知り、魂片-35" }
                 },
                 
                 // 45-50歳: 成熟期 (集中力)
