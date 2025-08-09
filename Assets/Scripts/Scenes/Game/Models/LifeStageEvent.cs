@@ -330,5 +330,68 @@ namespace HikukaHikanaika.Models
                 }
             };
         }
+        
+        // 神の道イベント（上位5%のプレイヤーのみ）
+        public static List<LifeStageEvent> GetDivinePathEvents()
+        {
+            return new List<LifeStageEvent>
+            {
+                // 第一審判：知恵の試練
+                new LifeStageEvent
+                {
+                    lifeCycle = 16, // 特別ステージ
+                    eventTitle = "🔥 神の第一審判：知恵の試練",
+                    eventDescription = "天界の門が開かれた。あなたの集中力が神の領域に達していることを証明せよ。",
+                    requiredStatus = BattleStatusType.Concentration,
+                    difficultyThreshold = 500,
+                    greatSuccess = new EventResult { text = "神々も認める完璧な知恵を示した", tenmeiChange = 0, description = "第一審判突破" },
+                    success = new EventResult { text = "十分な知恵を示したが、まだ神には遠い", tenmeiChange = 0, description = "辛うじて突破" },
+                    failure = new EventResult { text = "知恵が足りず、天界から拒絶された", tenmeiChange = -50, description = "審判失敗" },
+                    greatFailure = new EventResult { text = "神を冒涜する愚行と見なされた", tenmeiChange = -100, description = "大審判失敗" }
+                },
+                
+                // 第二審判：運命の試練
+                new LifeStageEvent
+                {
+                    lifeCycle = 17,
+                    eventTitle = "⚡ 神の第二審判：運命の試練",
+                    eventDescription = "運命を司る力を見せよ。偶然を支配する者のみが神となる資格を持つ。",
+                    requiredStatus = BattleStatusType.Luck,
+                    difficultyThreshold = 400,
+                    greatSuccess = new EventResult { text = "運命すらもあなたの意のままになった", tenmeiChange = 0, description = "第二審判突破" },
+                    success = new EventResult { text = "運命に愛されているが、まだ支配者ではない", tenmeiChange = 0, description = "辛うじて突破" },
+                    failure = new EventResult { text = "運命に翻弄され、神の道を阻まれた", tenmeiChange = -50, description = "審判失敗" },
+                    greatFailure = new EventResult { text = "運命の女神に見捨てられた", tenmeiChange = -100, description = "大審判失敗" }
+                },
+                
+                // 第三審判：慈愛の試練
+                new LifeStageEvent
+                {
+                    lifeCycle = 18,
+                    eventTitle = "💖 神の第三審判：慈愛の試練",
+                    eventDescription = "真の神は慈愛に満ちている。あなたの優しさが宇宙を包む愛となり得るか。",
+                    requiredStatus = BattleStatusType.Kindness,
+                    difficultyThreshold = 600,
+                    greatSuccess = new EventResult { text = "無限の慈愛で全ての存在を包み込んだ", tenmeiChange = 0, description = "第三審判突破" },
+                    success = new EventResult { text = "深い愛を持つが、まだ神の愛には及ばない", tenmeiChange = 0, description = "辛うじて突破" },
+                    failure = new EventResult { text = "愛が不十分で、神の座に相応しくない", tenmeiChange = -50, description = "審判失敗" },
+                    greatFailure = new EventResult { text = "心の闇が露呈し、神々から拒絶された", tenmeiChange = -100, description = "大審判失敗" }
+                },
+                
+                // 最終審判：神性の証明
+                new LifeStageEvent
+                {
+                    lifeCycle = 19,
+                    eventTitle = "👑 最終審判：神性の証明",
+                    eventDescription = "すべての試練を乗り越えたあなたに、最後の審判が下される。真の神となる覚悟はあるか。",
+                    requiredStatus = BattleStatusType.Luck, // 全ステータス合計で判定
+                    difficultyThreshold = 1000, // 超高基準
+                    greatSuccess = new EventResult { text = "完璧なる神として昇天した", tenmeiChange = 1000, description = "神への昇格完了！" },
+                    success = new EventResult { text = "準神として天界の一角を与えられた", tenmeiChange = 500, description = "准神となった" },
+                    failure = new EventResult { text = "神の資格なしと判断され、地上に戻された", tenmeiChange = 0, description = "人間界に戻る" },
+                    greatFailure = new EventResult { text = "神を僭称した罪で天罰を受けた", tenmeiChange = -200, description = "天罰を受けた" }
+                }
+            };
+        }
     }
 }

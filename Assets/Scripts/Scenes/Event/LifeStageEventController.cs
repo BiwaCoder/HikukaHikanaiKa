@@ -59,8 +59,17 @@ public class LifeStageEventController : MonoBehaviour
     
     void LoadCurrentEvent()
     {
-        // まず高基準限定イベントをチェック
-        currentEvent = CheckForHighStatEvent();
+        // 神の道ルートチェック（上位5%プレイヤー専用）
+        if (playerData.CanAccessDivinePath())
+        {
+            currentEvent = CheckForDivinePathEvent();
+        }
+        
+        // 神の道イベントがなければ高基準限定イベントをチェック
+        if (currentEvent == null)
+        {
+            currentEvent = CheckForHighStatEvent();
+        }
         
         if (currentEvent == null)
         {
@@ -101,6 +110,39 @@ public class LifeStageEventController : MonoBehaviour
         else
         {
             // 通常の高ステータス判定
+            int requiredStat = GetRequiredStatusValueForEvent(candidateEvent);
+            if (requiredStat >= candidateEvent.difficultyThreshold)
+            {
+                return candidateEvent;
+            }
+        }
+        
+        return null;
+    }
+    
+    LifeStageEvent CheckForDivinePathEvent()
+    {
+        var divineEvents = LifeStageEventData.GetDivinePathEvents();
+        var candidateEvent = divineEvents.FirstOrDefault(e => e.lifeCycle == playerData.LifeCycle);
+        
+        if (candidateEvent == null) return null;
+        
+        // 最終審判の特別判定（全ステータス合計）
+        if (candidateEvent.eventTitle.Contains("最終審判"))
+        {
+            int totalStats = playerData.Luck + playerData.Concentration + playerData.Kindness + 
+                           (playerData.CurrentOutfit?.points ?? 0) + 
+                           (playerData.CurrentFamilyWealth?.points ?? 0) + 
+                           (playerData.CurrentPersonality?.points ?? 0);
+            
+            if (totalStats >= 1000) // 最終審判の基準
+            {
+                return candidateEvent;
+            }
+        }
+        else
+        {
+            // 通常の神の道審判
             int requiredStat = GetRequiredStatusValueForEvent(candidateEvent);
             if (requiredStat >= candidateEvent.difficultyThreshold)
             {
@@ -289,11 +331,7 @@ public class LifeStageEventController : MonoBehaviour
         // ゲームオーバーチェック
         if (playerData.IsGameOver())
         {
-            yield return StartCoroutine(TypeText("\n\n💀 あなたの魂片は尽きました..."));
-            yield return new WaitForSeconds(2f);
-            
-            // 人生の軌跡を表示
-            yield return StartCoroutine(ShowLifeHistory());
+            yield return StartCoroutine(ShowAngelGameOver());
             yield break;
         }
 
@@ -407,10 +445,31 @@ public class LifeStageEventController : MonoBehaviour
     {
         playerData.AdvanceAge();
         
-        if (playerData.LifeCycle >= 16 || playerData.IsGameOver())
+        if (playerData.LifeCycle >= 20 || playerData.IsGameOver())
         {
-            // 人生の軌跡を表示
-            StartCoroutine(ShowLifeHistory());
+            // 神になった場合の特別エンディング
+            if (playerData.LifeCycle >= 20)
+            {
+                StartCoroutine(ShowDivineEnding());
+            }
+            else
+            {
+                // 人生の軌跡を表示
+                StartCoroutine(ShowLifeHistory());
+            }
+        }
+        else if (playerData.LifeCycle >= 16)
+        {
+            // 神の道ルートに入った場合の通知
+            if (playerData.CanAccessDivinePath() && playerData.LifeCycle == 16)
+            {
+                StartCoroutine(ShowDivinePathOpening());
+            }
+            else
+            {
+                // 通常の進行
+                SceneManager.LoadScene("FamiryGachaScene");
+            }
         }
         else
         {
@@ -456,5 +515,90 @@ public class LifeStageEventController : MonoBehaviour
         
         // 最初のシーンに戻る
         SceneManager.LoadScene("FamiryGachaScene");
+    }
+    
+    // 小悪魔天使のゲームオーバー演出
+    IEnumerator ShowAngelGameOver()
+    {
+        yield return StartCoroutine(TypeText("\n\n💀 魂片がゼロになりました...\n"));
+        yield return new WaitForSeconds(1f);
+        
+        yield return StartCoroutine(TypeText("😈 \"あらあら♡ とうとう魂片がゼロになっちゃったのね\"\n"));
+        yield return new WaitForSeconds(1.5f);
+        
+        yield return StartCoroutine(TypeText("👼 \"約束は約束よ。あなたの人生、全部わたしがいただくの♪\"\n"));
+        yield return new WaitForSeconds(1.5f);
+        
+        yield return StartCoroutine(TypeText("✨ \"でも心配しないで。とっても美味しい人生だったわ♡\"\n"));
+        yield return new WaitForSeconds(1.5f);
+        
+        yield return StartCoroutine(TypeText("🌟 \"また新しい子羊さんを探しに行かなくちゃ...ふふふ\"\n"));
+        yield return new WaitForSeconds(2f);
+        
+        // 人生の軌跡を表示
+        yield return StartCoroutine(ShowLifeHistory());
+    }
+    
+    // 神の道開放演出
+    IEnumerator ShowDivinePathOpening()
+    {
+        yield return StartCoroutine(TypeText("\n\n✨ 人間の域を超越した力を感じます...\n"));
+        yield return new WaitForSeconds(1f);
+        
+        yield return StartCoroutine(TypeText("🌟 \"素晴らしい...あなたはわたしの予想をも超えた存在ね♡\"\n"));
+        yield return new WaitForSeconds(1.5f);
+        
+        yield return StartCoroutine(TypeText("👼 \"実は...神への道があるの。でも、とても険しい道よ？\"\n"));
+        yield return new WaitForSeconds(1.5f);
+        
+        yield return StartCoroutine(TypeText("⚡ 「天界の門が開かれました...神の審判を受ける覚悟はありますか？」\n"));
+        yield return new WaitForSeconds(2f);
+        
+        yield return StartCoroutine(TypeText("🔥 【神の道ルート開放】上位5%のプレイヤーのみが挑戦できる特別ルートです\n"));
+        yield return new WaitForSeconds(3f);
+        
+        SceneManager.LoadScene("FamiryGachaScene");
+    }
+    
+    // 神エンディング演出
+    IEnumerator ShowDivineEnding()
+    {
+        yield return StartCoroutine(TypeText("\n\n🌟 全ての審判を乗り越えました...\n"));
+        yield return new WaitForSeconds(1f);
+        
+        if (playerData.RemainingTenmei >= 1000)
+        {
+            // 完全神エンディング
+            yield return StartCoroutine(TypeText("👑 \"完璧なる神として昇天なさいましたね♡\"\n"));
+            yield return new WaitForSeconds(1.5f);
+            yield return StartCoroutine(TypeText("✨ \"わたしも、あなたに仕える天使として永遠に従います\"\n"));
+            yield return new WaitForSeconds(1.5f);
+            yield return StartCoroutine(TypeText("🌟 あなたは新たな宇宙の創造主となりました\n"));
+            yield return new WaitForSeconds(2f);
+            yield return StartCoroutine(TypeText("🎉 【TRUE END：神への昇格】おめでとうございます！\n"));
+        }
+        else if (playerData.RemainingTenmei >= 500)
+        {
+            // 准神エンディング
+            yield return StartCoroutine(TypeText("⭐ \"準神として天界の一角をお与えします\"\n"));
+            yield return new WaitForSeconds(1.5f);
+            yield return StartCoroutine(TypeText("👼 \"いつか完全なる神になる日を楽しみにしていますね♡\"\n"));
+            yield return new WaitForSeconds(2f);
+            yield return StartCoroutine(TypeText("🎊 【GOOD END：准神】素晴らしい結果です！\n"));
+        }
+        else
+        {
+            // 審判失敗エンディング
+            yield return StartCoroutine(TypeText("😔 \"残念...神の資格には届きませんでしたね\"\n"));
+            yield return new WaitForSeconds(1.5f);
+            yield return StartCoroutine(TypeText("👼 \"でも大丈夫！また挑戦すればいいのよ♡\"\n"));
+            yield return new WaitForSeconds(2f);
+            yield return StartCoroutine(TypeText("💫 【NORMAL END：人間界復帰】また挑戦してくださいね！\n"));
+        }
+        
+        yield return new WaitForSeconds(3f);
+        
+        // 人生の軌跡を表示
+        yield return StartCoroutine(ShowLifeHistory());
     }
 }

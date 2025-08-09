@@ -245,6 +245,25 @@ namespace HikukaHikanaika.Models
             }
         }
         
+        // 上位5%判定（全ステータス合計基準）
+        public bool IsTopTierPlayer()
+        {
+            int totalStats = Luck + Concentration + Kindness + 
+                           (CurrentOutfit?.points ?? 0) + 
+                           (CurrentFamilyWealth?.points ?? 0) + 
+                           (CurrentPersonality?.points ?? 0);
+            
+            // 上位5%の基準：全ステータス合計1200以上
+            // この数値は通常のプレイでは到達困難で、やり込み要素
+            return totalStats >= 1200;
+        }
+        
+        // 神の道開放条件チェック
+        public bool CanAccessDivinePath()
+        {
+            return LifeCycle >= 16 && IsTopTierPlayer();
+        }
+        
         // ライフステージ限定ガチャの利用可能性チェック
         public bool IsLifestageGachaAvailable(GachaType gachaType)
         {

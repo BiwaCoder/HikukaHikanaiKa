@@ -69,7 +69,7 @@ namespace HikukaHikanaika.Logic
             
             if (PlayerData.IsGameOver())
             {
-                return "💀 あなたの魂片は尽きています...";
+                return "💀 \"あら♡ 魂片がゼロになっちゃったのね。約束通り、あなたの全てはわたしのもの♪\" - 小悪魔天使より";
             }
             
             if (!CanPerformGacha(gachaType))
@@ -86,7 +86,7 @@ namespace HikukaHikanaika.Logic
                 {
                     return "✋ この伝説ガチャはもう使用済みです";
                 }
-                return $"⏳ 魂片が足りません！残り{PlayerData.RemainingTenmei}片（必要：{cost}片）";
+                return $"⏳ \"あら、魂片が足りないのね♡ もっと魂を削らなきゃダメよ？\" 残り{PlayerData.RemainingTenmei}片（必要：{cost}片） - 小悪魔天使";
             }
             
             PlayerData.SpendTenmei(cost);
@@ -100,7 +100,7 @@ namespace HikukaHikanaika.Logic
             // ガチャ後に魂片チェック
             if (PlayerData.IsGameOver())
             {
-                result += "\n\n💀 あなたの魂片は尽きました...";
+                result += "\n\n💀 \"あら♡ ついに魂片がゼロに...あなたの人生、とっても美味しそうだったわ♪\"";
             }
             
             return result;
