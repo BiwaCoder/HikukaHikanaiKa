@@ -21,7 +21,6 @@ public class BadEndingController : MonoBehaviour
         "😈 \"あらあら♡ とうとう魂片がゼロになっちゃったのね\"",
         "👼 \"約束は約束よ。あなたの人生、全部わたしがいただくの♪\"",
         "✨ \"でも心配しないで。とっても美味しい人生だったわ♡\"",
-        "",  // 人生の軌跡を挿入する場所
         "🌟 魂片が完全に消失し、あなたの体は光の粒となって舞い上がる",
         "😈 \"ふふふ♡ あなたの魂、とても甘くて美味しかったわ\"",
         "✨ 光の粒は天使の手の中に吸い込まれていく...",
@@ -58,11 +57,6 @@ public class BadEndingController : MonoBehaviour
         if (isTyping)
         {
             StopAllCoroutines();
-            if (currentLine == 4 && !lifeHistoryShown)
-            {
-                // 人生の軌跡表示中はスキップできない
-                return;
-            }
             dialogueText.text = badEndingLines[currentLine];
             isTyping = false;
             canProceed = true;
@@ -70,11 +64,7 @@ public class BadEndingController : MonoBehaviour
         else if (canProceed)
         {
             currentLine++;
-            if (currentLine == 4) // 人生の軌跡を表示する位置
-            {
-                StartCoroutine(ShowLifeHistory());
-            }
-            else if (currentLine < badEndingLines.Length)
+            if (currentLine < badEndingLines.Length)
             {
                 StartCoroutine(TypeLine(badEndingLines[currentLine]));
             }

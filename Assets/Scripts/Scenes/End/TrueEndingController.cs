@@ -19,8 +19,6 @@ public class TrueEndingController : MonoBehaviour
     private string[] trueEndingLines = {
         "天使がゆっくりと瞳を開き、優しく微笑んでいる...",
         "✨ \"全ての審判を乗り越えられましたね...\"",
-        "",  // 人生の軌跡を挿入する場所
-        "👑 \"完璧なる神として昇天なさいましたね♡\"",
         "😇 \"わたしも、あなたに仕える天使として永遠に従います\"",
         "🌟 あなたは新たな宇宙の創造主となりました",
         "🎉 【TRUE END：神への昇格】",
@@ -57,11 +55,6 @@ public class TrueEndingController : MonoBehaviour
         if (isTyping)
         {
             StopAllCoroutines();
-            if (currentLine == 2 && !lifeHistoryShown)
-            {
-                // 人生の軌跡表示中はスキップできない
-                return;
-            }
             dialogueText.text = trueEndingLines[currentLine];
             isTyping = false;
             canProceed = true;
@@ -69,11 +62,7 @@ public class TrueEndingController : MonoBehaviour
         else if (canProceed)
         {
             currentLine++;
-            if (currentLine == 2) // 人生の軌跡を表示する位置
-            {
-                StartCoroutine(ShowLifeHistory());
-            }
-            else if (currentLine < trueEndingLines.Length)
+            if (currentLine < trueEndingLines.Length)
             {
                 StartCoroutine(TypeLine(trueEndingLines[currentLine]));
             }
@@ -99,28 +88,6 @@ public class TrueEndingController : MonoBehaviour
             dialogueText.text += stringInfo.SubstringByTextElements(i, 1);
             yield return new WaitForSeconds(textSpeed);
         }
-        isTyping = false;
-        canProceed = true;
-    }
-
-    IEnumerator ShowLifeHistory()
-    {
-        isTyping = true;
-        lifeHistoryShown = true;
-        
-        yield return StartCoroutine(TypeText("\n\n========== 神の道までの人生の軌跡 ==========\n"));
-        yield return new WaitForSeconds(1f);
-        
-        foreach (var record in playerData.EventHistory)
-        {
-            string historyLine = $"【{record.LifeStage}】\n{record.EventTitle}\n-> {record.ResultText}";
-            yield return StartCoroutine(TypeText(historyLine + "\n\n"));
-            yield return new WaitForSeconds(0.8f);
-        }
-        
-        yield return StartCoroutine(TypeText("======================================\n"));
-        yield return new WaitForSeconds(2f);
-        
         isTyping = false;
         canProceed = true;
     }
