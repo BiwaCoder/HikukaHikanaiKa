@@ -17,14 +17,14 @@ public class TrueEndingController : MonoBehaviour
     public float transitionDelay = 1.0f;
 
     private string[] trueEndingLines = {
-        "🌟 \"全ての審判を乗り越えました...\"",
+        "天使がゆっくりと瞳を開き、優しく微笑んでいる...",
+        "✨ \"全ての審判を乗り越えられましたね...\"",
         "",  // 人生の軌跡を挿入する場所
         "👑 \"完璧なる神として昇天なさいましたね♡\"",
-        "✨ \"わたしも、あなたに仕える天使として永遠に従います\"",
+        "😇 \"わたしも、あなたに仕える天使として永遠に従います\"",
         "🌟 あなたは新たな宇宙の創造主となりました",
         "🎉 【TRUE END：神への昇格】",
-        "👼 \"本当に素晴らしい結末でしたね♡\"",
-        "😇 \"また新しい人生を歩まれますか？\""
+        "👼 \"本当に素晴らしい結末でしたね♡ また新しい人生を歩まれますか？\""
     };
 
     private int currentLine = 0;
@@ -57,7 +57,7 @@ public class TrueEndingController : MonoBehaviour
         if (isTyping)
         {
             StopAllCoroutines();
-            if (currentLine == 1 && !lifeHistoryShown)
+            if (currentLine == 2 && !lifeHistoryShown)
             {
                 // 人生の軌跡表示中はスキップできない
                 return;
@@ -69,7 +69,7 @@ public class TrueEndingController : MonoBehaviour
         else if (canProceed)
         {
             currentLine++;
-            if (currentLine == 1) // 人生の軌跡を表示する位置
+            if (currentLine == 2) // 人生の軌跡を表示する位置
             {
                 StartCoroutine(ShowLifeHistory());
             }
