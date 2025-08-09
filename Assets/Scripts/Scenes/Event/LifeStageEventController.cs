@@ -592,7 +592,11 @@ public class LifeStageEventController : MonoBehaviour
         yield return new WaitForSeconds(2f);
         
         yield return StartCoroutine(TypeText("🔥 【神の道ルート開放】上位5%のプレイヤーのみが挑戦できる特別ルートです\n"));
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(2f);
+
+        // 神の道突入前に、ここまでの人生の軌跡をエンドロール表示
+        yield return StartCoroutine(TypeText("\n\n========== ここまでの人生の軌跡 =========="));
+        yield return StartCoroutine(ShowLifeHistory());
         
         SceneManager.LoadScene("FamiryGachaScene");
     }
@@ -605,6 +609,10 @@ public class LifeStageEventController : MonoBehaviour
 
         yield return StartCoroutine(TypeText("\n\n🌟 全ての審判を乗り越えました...\n"));
         yield return new WaitForSeconds(1f);
+
+        // 神の道まで含めた人生の軌跡をエンドロール表示
+        yield return StartCoroutine(TypeText("\n\n========== 神の道までの人生の軌跡 =========="));
+        yield return StartCoroutine(ShowLifeHistory());
         
         if (playerData.RemainingTenmei >= 1000)
         {
