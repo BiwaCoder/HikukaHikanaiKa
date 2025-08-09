@@ -356,9 +356,12 @@ public class LifeStageEventController : MonoBehaviour
         if (resultText == null) yield break;
         
         resultText.text = "";
-        foreach (char c in text)
+        
+        // StringInfoを使用して絵文字や特殊文字を正しく分割
+        System.Globalization.StringInfo stringInfo = new System.Globalization.StringInfo(text);
+        for (int i = 0; i < stringInfo.LengthInTextElements; i++)
         {
-            resultText.text += c;
+            resultText.text += stringInfo.SubstringByTextElements(i, 1);
             yield return new WaitForSeconds(textSpeed);
         }
     }

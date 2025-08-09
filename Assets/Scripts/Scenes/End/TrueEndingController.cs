@@ -91,9 +91,12 @@ public class TrueEndingController : MonoBehaviour
         Debug.Log("描画開始");
         isTyping = true;
         dialogueText.text = "";
-        foreach (char c in line)
+        
+        // StringInfoを使用して絵文字や特殊文字を正しく分割
+        System.Globalization.StringInfo stringInfo = new System.Globalization.StringInfo(line);
+        for (int i = 0; i < stringInfo.LengthInTextElements; i++)
         {
-            dialogueText.text += c;
+            dialogueText.text += stringInfo.SubstringByTextElements(i, 1);
             yield return new WaitForSeconds(textSpeed);
         }
         isTyping = false;
@@ -124,9 +127,11 @@ public class TrueEndingController : MonoBehaviour
 
     IEnumerator TypeText(string text)
     {
-        foreach (char c in text)
+        // StringInfoを使用して絵文字や特殊文字を正しく分割
+        System.Globalization.StringInfo stringInfo = new System.Globalization.StringInfo(text);
+        for (int i = 0; i < stringInfo.LengthInTextElements; i++)
         {
-            dialogueText.text += c;
+            dialogueText.text += stringInfo.SubstringByTextElements(i, 1);
             yield return new WaitForSeconds(textSpeed);
         }
     }
