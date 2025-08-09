@@ -96,13 +96,13 @@ namespace HikukaHikanaika.Models
             if (CurrentCharacterData == null) return string.Empty;
             
             return $@"プレイヤー名: {CurrentCharacterData.playerName}
-服装: {CurrentCharacterData.outfit} (美容ポイント: {CurrentCharacterData.outfitPoints})
-家柄: {CurrentCharacterData.familyWealth} (家柄ポイント: {CurrentCharacterData.familyWealthPoints})
-性格: {CurrentCharacterData.personality} (性格ポイント: {CurrentCharacterData.personalityPoints})
+服装: {CurrentCharacterData.outfit} (美容: {CurrentCharacterData.outfitPoints})
+家柄: {CurrentCharacterData.familyWealth} (家柄: {CurrentCharacterData.familyWealthPoints})
+性格: {CurrentCharacterData.personality} (性格: {CurrentCharacterData.personalityPoints})
 運: {CurrentCharacterData.luck}
 集中力: {CurrentCharacterData.concentration}
 優しさ: {CurrentCharacterData.kindness}
-総合外見ポイント: {CurrentCharacterData.totalPoints}";
+総合外見: {CurrentCharacterData.totalPoints}";
         }
     }
 }

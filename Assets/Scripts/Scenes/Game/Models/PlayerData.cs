@@ -35,7 +35,7 @@ namespace HikukaHikanaika.Models
         
         public string PlayerName { get; set; } = "あなた";
         public int CurrentAge { get; set; } = 0;
-        public int RemainingTenmei { get; set; } = 80; // 残り天命（ポイント）
+        public int RemainingTenmei { get; set; } = 80; // 残り魂片（片）
         public int LifeCycle { get; set; } = 0;
         
         public int Luck { get; set; } = 0;
@@ -54,6 +54,20 @@ namespace HikukaHikanaika.Models
         public GachaItem CurrentOutfit { get; set; }
         public GachaItem CurrentFamilyWealth { get; set; }
         public GachaItem CurrentPersonality { get; set; }
+
+        // 新しいステータスを上げた最後のアイテム名
+        public string LastLuckItemName { get; set; } = "なし";
+        public string LastConcentrationItemName { get; set; } = "なし";
+        public string LastKindnessItemName { get; set; } = "なし";
+        
+        // ガチャ解放状態管理
+        private HashSet<GachaType> unlockedGachaTypes = new HashSet<GachaType>();
+        
+        // 最新の解放されたガチャ（通知用）
+        public List<GachaType> NewlyUnlockedGachaTypes { get; private set; } = new List<GachaType>();
+        
+        // 一回限りガチャの使用状況
+        private HashSet<GachaType> usedOnceOnlyGachas = new HashSet<GachaType>();
         
         private PlayerData()
         {
@@ -64,6 +78,20 @@ namespace HikukaHikanaika.Models
             Concentration = 10;
             Kindness = 10;
             EventHistory = new List<GameEventRecord>(); // 履歴リストを初期化
+            
+            // 基本ガチャは最初から解放
+            unlockedGachaTypes.Add(GachaType.Beauty);
+            unlockedGachaTypes.Add(GachaType.FamilyWealth);
+            unlockedGachaTypes.Add(GachaType.Personality);
+            unlockedGachaTypes.Add(GachaType.Luck);
+            unlockedGachaTypes.Add(GachaType.Concentration);
+            unlockedGachaTypes.Add(GachaType.Kindness);
+            
+            // 使えない（超損）ガチャも最初から利用可能（誰も使わないけど）
+            unlockedGachaTypes.Add(GachaType.Cursed);
+            unlockedGachaTypes.Add(GachaType.Academic);
+            unlockedGachaTypes.Add(GachaType.Social);
+            unlockedGachaTypes.Add(GachaType.Gambler);
         }
         
         public static void Initialize()
@@ -175,6 +203,115 @@ namespace HikukaHikanaika.Models
                 case GachaType.FamilyWealth: return ownedFamilyWealthItems;
                 case GachaType.Personality: return ownedPersonalityItems;
                 default: return ownedBeautyItems;
+            }
+        }
+        
+        // ガチャ解放・制御メソッド
+        public bool IsGachaUnlocked(GachaType gachaType)
+        {
+            return unlockedGachaTypes.Contains(gachaType);
+        }
+        
+        public void UnlockGacha(GachaType gachaType)
+        {
+            if (!unlockedGachaTypes.Contains(gachaType))
+            {
+                unlockedGachaTypes.Add(gachaType);
+                NewlyUnlockedGachaTypes.Add(gachaType);
+            }
+        }
+        
+        public void ClearNewUnlockNotifications()
+        {
+            NewlyUnlockedGachaTypes.Clear();
+        }
+        
+        // 一回限りガチャのチェック
+        public bool IsOnceOnlyGacha(GachaType gachaType)
+        {
+            return gachaType == GachaType.Legendary;
+        }
+        
+        public bool HasUsedOnceOnlyGacha(GachaType gachaType)
+        {
+            return usedOnceOnlyGachas.Contains(gachaType);
+        }
+        
+        public void MarkOnceOnlyGachaAsUsed(GachaType gachaType)
+        {
+            if (IsOnceOnlyGacha(gachaType))
+            {
+                usedOnceOnlyGachas.Add(gachaType);
+            }
+        }
+        
+        // ライフステージ限定ガチャの利用可能性チェック
+        public bool IsLifestageGachaAvailable(GachaType gachaType)
+        {
+            if (!IsGachaUnlocked(gachaType)) return false;
+            
+            switch (gachaType)
+            {
+                case GachaType.Childhood: return CurrentAge <= 10;
+                case GachaType.Youth: return CurrentAge >= 15 && CurrentAge <= 25;
+                case GachaType.Career: return CurrentAge >= 20 && CurrentAge <= 40;
+                case GachaType.Mature: return CurrentAge >= 40 && CurrentAge <= 60;
+                case GachaType.Senior: return CurrentAge >= 60;
+                case GachaType.Reversal: return CurrentAge >= 25 && CurrentAge <= 35; // 30歳前後でのみ利用可能
+                default: return true; // 通常ガチャは年齢制限なし
+            }
+        }
+        
+        // イベント結果によるガチャ解放
+        public void ProcessEventResult(GachaUnlockResult result, string eventType = "")
+        {
+            switch (result)
+            {
+                case GachaUnlockResult.GreatSuccess:
+                    UnlockGacha(GachaType.Legendary);
+                    break;
+                case GachaUnlockResult.GreatFailure:
+                    UnlockGacha(GachaType.Redemption);
+                    break;
+            }
+            
+            // 恋愛イベント特別処理
+            if (eventType == "恋愛" && result == GachaUnlockResult.Success)
+            {
+                UnlockGacha(GachaType.Love);
+            }
+            
+            // ライフステージ限定ガチャの自動解放
+            CheckAndUnlockLifestageGachas();
+        }
+        
+        private void CheckAndUnlockLifestageGachas()
+        {
+            // 年齢に応じてライフステージガチャを解放
+            if (CurrentAge <= 10 && !IsGachaUnlocked(GachaType.Childhood))
+            {
+                UnlockGacha(GachaType.Childhood);
+            }
+            if (CurrentAge >= 15 && CurrentAge <= 25 && !IsGachaUnlocked(GachaType.Youth))
+            {
+                UnlockGacha(GachaType.Youth);
+            }
+            if (CurrentAge >= 20 && CurrentAge <= 40 && !IsGachaUnlocked(GachaType.Career))
+            {
+                UnlockGacha(GachaType.Career);
+            }
+            if (CurrentAge == 30 && !IsGachaUnlocked(GachaType.Reversal))
+            {
+                // 30歳で逆転ガチャを特別解放
+                UnlockGacha(GachaType.Reversal);
+            }
+            if (CurrentAge >= 40 && CurrentAge <= 60 && !IsGachaUnlocked(GachaType.Mature))
+            {
+                UnlockGacha(GachaType.Mature);
+            }
+            if (CurrentAge >= 60 && !IsGachaUnlocked(GachaType.Senior))
+            {
+                UnlockGacha(GachaType.Senior);
             }
         }
     }

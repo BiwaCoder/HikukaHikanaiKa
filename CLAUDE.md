@@ -1,57 +1,93 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+このファイルは、このリポジトリでコードを作業する際のClaude Code（claude.ai/code）向けのガイダンスを提供します。
 
-## Project Overview
+## プロジェクト概要
 
-**HikukaHikanaika** is a Unity game where players participate in a gacha-based reality show. The core gameplay involves pulling gacha to determine character appearance/beauty stats, then competing in reality show challenges.
+**HikukaHikanaika**は、ガチャベースの人生シミュレーションゲームです。プレイヤーは「魂片（Tenmei）」を使ってガチャを引き、キャラクターのステータスを向上させながら、異なるライフステージ（幼児期〜晩年期）を進行していきます。リアリティーショー要素も含まれています。
 
-## Project Structure
+## プロジェクト構造
 
 - **Unity Version**: 2021.3.28f1
-- **Main Scripts**: Located in `Assets/Scripts/`
-  - `BeautyGachaManager.cs`: Core gacha system for beauty/appearance attributes
-- **Assets**: 
-  - `Assets/Font/`: Custom fonts (Nosutaru-dotMPlusH-10-Regular.ttf)
-  - `Assets/Scenes/`: Unity scenes (SampleScene.unity)
-- **Project Settings**: Standard Unity configuration in `ProjectSettings/`
+- **アーキテクチャ**: MVCパターン実装（`Assets/Scripts/Document/README_MVC.md`参照）
+- **メインシーン**:
+  - `Assets/Scenes/Prologue.unity`: ゲーム導入部
+  - `Assets/Scenes/Gacha/FamiryGachaScene.unity`: メインガチャインターフェース
+  - `Assets/Scenes/Reality/`: リアリティーショーとライフステージシーン
+- **スクリプト構成**:
+  - `Assets/Scripts/Logic/`: コアゲームロジック（GachaLogic）
+  - `Assets/Scripts/Scenes/`: シーン固有のコントローラーとモデル
+  - `Assets/Scripts/Utils/`: ユーティリティクラス（MoneyManager）
+  - レガシーシステム: `BeautyGachaManager.cs`（リファクタリング中）
 
-## Game Architecture
+## ゲームアーキテクチャ
 
-### Core Systems
+### 核となるシステム
 
-**BeautyGachaManager** (`Assets/Scripts/BeautyGachaManager.cs`):
-- Manages gacha pulls for beauty/appearance attributes
-- Implements weighted probability system with entries like:
-  - "オートクチュールのドレス" (10% - highest tier)
-  - "制服しか勝たん" (20%)  
-  - "量産型ガーリー" (20%)
-  - "清潔感あるけど量販感" (30%)
-  - "サイズ合ってない" (20% - lowest tier)
-- Uses virtual currency system (starts with 300M yen, 30M per pull)
-- Connected to Unity UI system (Button, Text components)
+**魂片システム**:
+- プレイヤーは80の「魂片」でスタート
+- ガチャ1回につき2魂片消費
+- 魂片が0になるか80歳に達するとゲーム終了
 
-## Development Commands
+**ガチャタイプ**（`GachaLogic.cs`）:
+- **美貌**: 見た目に影響する装備アイテム
+- **家柄**: 出身や社会的地位に関するアイテム
+- **性格**: キャラクターの性格特性アイテム
+- **ステータス強化**: 運・集中力・優しさの直接的な能力向上
 
-This is a standard Unity project with no custom build scripts. Use Unity Editor for development:
+**ライフサイクルシステム**（`PlayerData.cs`）:
+- 幼児期（0-5歳）から晩年期（75-80歳）まで16のライフステージ
+- 各サイクルで年齢が5歳ずつ進行
+- ライフステージイベントがキャラクター成長に影響
 
-- **Open Project**: Open the project folder in Unity 2021.3.28f1
-- **Build**: Use Unity's Build Settings (File → Build Settings)
-- **Test**: Use Unity's Test Runner (Window → General → Test Runner)
-- **Package Management**: Unity Package Manager handles dependencies
+**キャラクターステータス**:
+- **外見**: 美貌・家柄・性格アイテムの合計値
+- **運**、**集中力**、**優しさ**: ガチャにより段階的に向上
 
-## Dependencies
+### MVCアーキテクチャ
 
-Key Unity packages (from `Packages/manifest.json`):
-- `com.unity.ugui@1.0.0`: UI system for gacha interface
-- `com.unity.textmeshpro@3.0.6`: Text rendering
-- `com.unity.test-framework@1.1.33`: Testing framework
-- `com.unity.visualscripting@1.8.0`: Visual scripting support
-- Standard Unity modules for core functionality
+**Models**（`Assets/Scripts/Scenes/Game/Models/`）:
+- `PlayerData.cs`: プレイヤー状態、インベントリ、人生進行を管理するシングルトン
+- `GachaItem.cs`: ステータスとメタデータを持つアイテムデータ構造
+- `GachaModel.cs`: 確率計算とアイテム生成
 
-## Development Notes
+**Controllers**:
+- `GachaUIController.cs`: メインガチャインターフェースロジック
+- `LifeStageEventController.cs`: ライフステージイベント処理
 
-- Game text and UI elements are in Japanese
-- Uses Unity's built-in Random system with time-based seeding
-- Monetary values use large numbers (millions/billions of yen)
-- No external build tools or CI/CD configuration present
+**Views**:
+- `GachaView.cs`: ガチャ結果とプレイヤーステータスのUI表示
+- 各種シーン固有のビューコントローラー
+
+## 開発コマンド
+
+標準的なUnityプロジェクトです - Unity Editor 2021.3.28f1を使用:
+
+- **プロジェクト開始**: Unity EditorでプロジェクトフォルダをLoad
+- **ビルド**: File → Build Settings
+- **テスト**: Window → General → Test Runner（テストが存在する場合）
+- **プレイモード**: UnityのPlayボタンでガチャメカニクスをテスト
+
+## 依存関係
+
+`Packages/manifest.json`の主要パッケージ:
+- `com.unity.ugui@1.0.0`: コアUIシステム
+- `com.unity.textmeshpro@3.0.6`: 日本語テキスト描画
+- `com.unity.test-framework@1.1.33`: テストフレームワーク
+- `com.unity.visualscripting@1.8.0`: ビジュアルスクリプティングサポート
+- 標準Unityモジュール群
+
+## ゲームバランス注意事項
+
+- **最適ガチャ戦略**: 量より質を重視 - 各ガチャタイプは異なる目的がある
+- **重要なリソース管理**: 魂片80個で1回2消費のため、総計約40回のガチャが可能
+- **ライフステージ圧力**: ステータス構築と年齢進行（ライフステージ毎に自動）のバランスが重要
+- **ステータス配分**: 適切なライフステージチャレンジに高いステータスをマッチングさせることが成功の鍵
+
+## 開発注意事項
+
+- すべてのゲームテキストは日本語で味のあるナレーション付き
+- シングルトンパターンを多用（PlayerData、GachaLogic）
+- ガチャ結果に時間ベースのランダムシード使用
+- キャラクターデータ永続化にJSONシリアライゼーション使用
+- ライフステージ進行にイベント駆動アーキテクチャを採用
