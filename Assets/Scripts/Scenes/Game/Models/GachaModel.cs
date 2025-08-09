@@ -29,7 +29,7 @@ namespace HikukaHikanaika.Models
                 new GachaItem("サイズ合ってない", 10f, 5, 0, 0, 0, GachaType.Beauty)
             };
             
-            // 家柄ガチャテーブル (外見)
+            // 家柄ガチャテーブル
             gachaTables[GachaType.FamilyWealth] = new List<GachaItem>
             {
                 new GachaItem("一族で日本史に出てくる", 5f, 200, 0, 0, 0, GachaType.FamilyWealth),
@@ -39,7 +39,7 @@ namespace HikukaHikanaika.Models
                 new GachaItem("一般庶民", 10f, 10, 0, 0, 0, GachaType.FamilyWealth)
             };
             
-            // 性格ガチャテーブル (外見)
+            // 性格ガチャテーブル
             gachaTables[GachaType.Personality] = new List<GachaItem>
             {
                 new GachaItem("天性の人たらし", 5f, 180, 0, 0, 0, GachaType.Personality),
@@ -57,20 +57,20 @@ namespace HikukaHikanaika.Models
                 new GachaItem("幸運のコイン", 70f, 0, 5, 0, 0, GachaType.Luck)
             };
 
-            // 集中力ガチャテーブル
+            // 集中力ガチャテーブル - バズり要素追加
             gachaTables[GachaType.Concentration] = new List<GachaItem>
             {
-                new GachaItem("ゾーン体験", 5f, 0, 0, 60, 0, GachaType.Concentration),
-                new GachaItem("精神統一の書", 25f, 0, 0, 20, 0, GachaType.Concentration),
-                new GachaItem("アロマキャンドル", 70f, 0, 0, 8, 0, GachaType.Concentration)
+                new GachaItem("神集中モード", 5f, 0, 0, 60, 0, GachaType.Concentration),
+                new GachaItem("ポモドーロ最強", 25f, 0, 0, 20, 0, GachaType.Concentration),
+                new GachaItem("ながらスマホ", 70f, 0, 0, 8, 0, GachaType.Concentration)
             };
 
-            // 優しさガチャテーブル
+            // 優しさガチャテーブル - バズり要素追加
             gachaTables[GachaType.Kindness] = new List<GachaItem>
             {
-                new GachaItem("聖母の微笑み", 5f, 0, 0, 0, 70, GachaType.Kindness),
-                new GachaItem("天使の羽", 25f, 0, 0, 0, 25, GachaType.Kindness),
-                new GachaItem("小さな親切", 70f, 0, 0, 0, 10, GachaType.Kindness)
+                new GachaItem("優しさの化身", 5f, 0, 0, 0, 70, GachaType.Kindness),
+                new GachaItem("推しを守りたい", 25f, 0, 0, 0, 25, GachaType.Kindness),
+                new GachaItem("普通にいい人", 70f, 0, 0, 0, 10, GachaType.Kindness)
             };
 
             // 童心ガチャテーブル (幼児期限定) - 優しさ特化
@@ -100,13 +100,13 @@ namespace HikukaHikanaika.Models
                 new GachaItem("出世への執着", 30f, 0, 0, 10, 0, GachaType.Career)             // 低品質
             };
 
-            // 円熟ガチャテーブル (成熟期限定) - バランス型（全ステータス小幅上昇）
+            // 円熟ガチャテーブル (成熟期限定) - バランス型（2ステータス上昇）
             gachaTables[GachaType.Mature] = new List<GachaItem>
             {
-                new GachaItem("人生経験の深み", 15f, 0, 30, 30, 30, GachaType.Mature),          // 大当たり
-                new GachaItem("大人の余裕", 25f, 0, 20, 20, 20, GachaType.Mature),             // 高品質
-                new GachaItem("中年の焦り", 35f, 0, 12, 12, 12, GachaType.Mature),             // 普通
-                new GachaItem("保守的になる", 25f, 0, 5, 5, 5, GachaType.Mature)               // 低品質
+                new GachaItem("人生経験の深み", 15f, 0, 40, 45, 0, GachaType.Mature),          // 大当たり：運+集中
+                new GachaItem("大人の余裕", 25f, 0, 30, 0, 35, GachaType.Mature),             // 高品質：運+優しさ
+                new GachaItem("中年の焦り", 35f, 0, 0, 25, 20, GachaType.Mature),             // 普通：集中+優しさ
+                new GachaItem("保守的になる", 25f, 0, 15, 10, 0, GachaType.Mature)            // 低品質：運+集中
             };
 
             // 長老ガチャテーブル (シニア期限定) - 優しさ特化（高レベル）
@@ -136,30 +136,30 @@ namespace HikukaHikanaika.Models
                 new GachaItem("孤独な戦い", 25f, 0, 0, 18, 0, GachaType.Redemption)             // 低品質
             };
 
-            // 恋愛ガチャテーブル (恋愛イベント成功で解放) - 全ステータスバランス型（中レベル）
+            // 恋愛ガチャテーブル (恋愛イベント成功で解放) - 2ステータス型（中レベル）
             gachaTables[GachaType.Love] = new List<GachaItem>
             {
-                new GachaItem("真実の愛", 15f, 0, 40, 40, 40, GachaType.Love),                  // 大当たり
-                new GachaItem("恋する心", 25f, 0, 25, 25, 25, GachaType.Love),                  // 高品質
-                new GachaItem("愛の盲目", 35f, 0, 15, 15, 15, GachaType.Love),                  // 普通
-                new GachaItem("恋の駆け引き", 25f, 0, 8, 8, 8, GachaType.Love)                // 低品質
+                new GachaItem("真実の愛", 15f, 0, 50, 0, 60, GachaType.Love),                  // 大当たり：運+優しさ
+                new GachaItem("恋する心", 25f, 0, 35, 40, 0, GachaType.Love),                  // 高品質：運+集中
+                new GachaItem("愛の盲目", 35f, 0, 0, 20, 25, GachaType.Love),                  // 普通：集中+優しさ
+                new GachaItem("恋の駆け引き", 25f, 0, 15, 12, 0, GachaType.Love)              // 低品質：運+集中
             };
 
             // 30歳逆転ガチャテーブル (30歳で自動解放) - 外見も含む特別ガチャ
             gachaTables[GachaType.Reversal] = new List<GachaItem>
             {
-                new GachaItem("奇跡の大逆転", 30f, 120, 80, 70, 90, GachaType.Reversal),     // 成功: 全部アップ
+                new GachaItem("奇跡の大逆転", 30f, 120, 90, 85, 0, GachaType.Reversal),     // 成功: 外見+運+集中（2ステータス）
                 new GachaItem("ささやかな希望", 40f, 0, 0, 0, 0, GachaType.Reversal),         // 失敗（何も得られない）
-                new GachaItem("更なる絶望", 30f, 0, -40, -35, -45, GachaType.Reversal)       // 大失敗（ステータス減少）
+                new GachaItem("更なる絶望", 30f, 0, -50, -45, 0, GachaType.Reversal)       // 大失敗（2ステータス減少）
             };
             
-            // 呪いガチャテーブル（全ステータス減少特化）- 常時利用可能だが誰も使わない
+            // 呪いガチャテーブル（2ステータス減少特化）- 常時利用可能だが誰も使わない
             gachaTables[GachaType.Cursed] = new List<GachaItem>
             {
-                new GachaItem("絶望の淵", 40f, 0, -50, -50, -50, GachaType.Cursed),          // 全部大幅ダウン
-                new GachaItem("不運の連鎖", 30f, 0, -30, 0, 0, GachaType.Cursed),            // 運だけダウン
-                new GachaItem("心の闇", 20f, 0, 0, 0, -40, GachaType.Cursed),                // 優しさだけダウン
-                new GachaItem("無気力", 10f, 0, 0, -35, 0, GachaType.Cursed)                 // 集中力だけダウン
+                new GachaItem("絶望の淵", 40f, 0, -60, -55, 0, GachaType.Cursed),          // 運+集中大幅ダウン
+                new GachaItem("不運の連鎖", 30f, 0, -45, 0, 0, GachaType.Cursed),            // 運だけダウン
+                new GachaItem("心の闇", 20f, 0, 0, -40, -35, GachaType.Cursed),                // 集中+優しさダウン
+                new GachaItem("無気力", 10f, 0, 0, -50, 0, GachaType.Cursed)                 // 集中力だけダウン
             };
             
             // 学術ガチャテーブル（集中力超特化・高コスト）
