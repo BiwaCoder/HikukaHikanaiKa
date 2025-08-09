@@ -284,7 +284,23 @@ public class LifeStageEventController : MonoBehaviour
             resultText.gameObject.SetActive(true);
 
         // 1. 結果を判定
-        int playerStat = GetRequiredStatusValue();
+        int playerStat;
+        string statusInfluence;
+
+        if (currentEvent.eventTitle.Contains("最終審判") || currentEvent.eventTitle.Contains("完璧超人"))
+        {
+            playerStat = playerData.Luck + playerData.Concentration + playerData.Kindness +
+                           (playerData.CurrentOutfit?.points ?? 0) +
+                           (playerData.CurrentFamilyWealth?.points ?? 0) +
+                           (playerData.CurrentPersonality?.points ?? 0);
+            statusInfluence = "(全ステータス合計が影響しました)";
+        }
+        else
+        {
+            playerStat = GetRequiredStatusValue();
+            statusInfluence = $"({GetStatusName(currentEvent.requiredStatus)}が影響しました)";
+        }
+
         int threshold = currentEvent.difficultyThreshold;
         EventResult eventResult;
 
@@ -307,7 +323,6 @@ public class LifeStageEventController : MonoBehaviour
         playerData.ProcessEventResult(gachaUnlockResult, eventType);
 
         // 3. 表示する最終的なメッセージを一度に組み立てる
-        string statusInfluence = $"({GetStatusName(currentEvent.requiredStatus)}が影響しました)";
         string changeDescription = eventResult.tenmeiChange >= 0 ? "🎉" : "💔";
         string finalMessage = $"{eventResult.text}\n{statusInfluence}\n\n{changeDescription} {eventResult.description}";
         
@@ -455,6 +470,7 @@ public class LifeStageEventController : MonoBehaviour
             if (playerData.CanAccessDivinePath())
             {
                 // 神の道ルートに進む
+                playerData.InDivinePath = true; // 神の道挑戦中は寿命チェックを無効化
                 StartCoroutine(ShowDivinePathOpening());
             }
             else
@@ -525,7 +541,7 @@ public class LifeStageEventController : MonoBehaviour
             
             // ステータス初期化してPrologueシーンへ
             PlayerData.Initialize();
-            SceneManager.LoadScene("PrologueScene");
+            SceneManager.LoadScene("Prologue");
         }
         else
         {
@@ -584,6 +600,9 @@ public class LifeStageEventController : MonoBehaviour
     // 神エンディング演出
     IEnumerator ShowDivineEnding()
     {
+        // 神の道の試練はここで終了するため、寿命無効フラグを明示的に解除
+        playerData.InDivinePath = false;
+
         yield return StartCoroutine(TypeText("\n\n🌟 全ての審判を乗り越えました...\n"));
         yield return new WaitForSeconds(1f);
         
@@ -642,7 +661,7 @@ public class LifeStageEventController : MonoBehaviour
                 
                 // ステータス初期化してPrologueシーンへ
                 PlayerData.Initialize();
-                SceneManager.LoadScene("PrologueScene");
+                SceneManager.LoadScene("Prologue");
                 yield break;
             }
             yield return null; // 1フレーム待機

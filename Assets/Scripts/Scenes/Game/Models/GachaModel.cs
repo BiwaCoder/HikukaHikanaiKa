@@ -228,19 +228,91 @@ namespace HikukaHikanaika.Models
         {
             var table = gachaTables[type];
             UnityEngine.Random.InitState((int)DateTime.Now.Ticks & 0x0000FFFF);
+
+            // ライフステージに応じた期待値バイアス
+            // 目的: 序盤≈80% / 中盤≈65% / 終盤≈45% でイベント達成しやすい方向へ
+            // アプローチ: 各アイテムの価値スコアに応じ確率ウェイトを補正し、再正規化
+            var biasedWeights = GetBiasedWeights(table);
+
             float roll = UnityEngine.Random.Range(0f, 100f);
             float cumulative = 0f;
-            
-            foreach (var entry in table)
+            for (int i = 0; i < table.Count; i++)
             {
-                cumulative += entry.probability;
+                cumulative += biasedWeights[i];
                 if (roll <= cumulative)
                 {
-                    return entry;
+                    return table[i];
                 }
             }
-            
+
             return table[table.Count - 1]; // フォールバック
+        }
+
+        // 各アイテムの価値を基に、年齢帯ごとのバイアスを適用して確率を再分配
+        private List<float> GetBiasedWeights(List<GachaItem> table)
+        {
+            // 価値スコア: 正の上昇量（points/luck/concentration/kindness）の合計
+            float maxVal = 0f;
+            var values = new List<float>(table.Count);
+            for (int i = 0; i < table.Count; i++)
+            {
+                var it = table[i];
+                float v = 0f;
+                if (it.points > 0) v += it.points;
+                if (it.luck > 0) v += it.luck;
+                if (it.concentration > 0) v += it.concentration;
+                if (it.kindness > 0) v += it.kindness;
+                values.Add(v);
+                if (v > maxVal) maxVal = v;
+            }
+
+            // 正規化（全て0の場合は等確率のまま）
+            var normalized = new List<float>(table.Count);
+            if (maxVal <= 0f)
+            {
+                // 負やゼロばかり（呪い系など）の場合はそのまま
+                for (int i = 0; i < table.Count; i++) normalized.Add(0f);
+            }
+            else
+            {
+                for (int i = 0; i < table.Count; i++) normalized.Add(values[i] / maxVal);
+            }
+
+            // ライフステージ別バイアス係数（経験的に調整）
+            // 0-25: +0.50（高価値が出やすい）
+            // 30-55: +0.15（やや高価値寄り）
+            // 60+: -0.20（高価値が出にくい）
+            int age = PlayerData.Instance?.CurrentAge ?? 0;
+            float bias = 0f;
+            if (age <= 25) bias = 0.50f;         // 序盤 ≈80%
+            else if (age <= 55) bias = 0.15f;    // 中盤 ≈65%
+            else bias = -0.20f;                  // 終盤 ≈45%
+
+            // ウェイト補正: w' = p * (1 + bias * n)
+            // nは価値の0..1正規化。負・ゼロ値は価値0として扱う。
+            var raw = new List<float>(table.Count);
+            float sum = 0f;
+            for (int i = 0; i < table.Count; i++)
+            {
+                float p = table[i].probability;
+                float n = normalized[i];
+                float w = p * (1f + bias * n);
+                raw.Add(w);
+                sum += w;
+            }
+
+            // 100%に再正規化
+            var weights = new List<float>(table.Count);
+            if (sum <= 0f)
+            {
+                // 念のためフォールバック（元の確率を使用）
+                for (int i = 0; i < table.Count; i++) weights.Add(table[i].probability);
+                return weights;
+            }
+
+            float scale = 100f / sum;
+            for (int i = 0; i < table.Count; i++) weights.Add(raw[i] * scale);
+            return weights;
         }
         
         public int GetGachaCost(GachaType type)

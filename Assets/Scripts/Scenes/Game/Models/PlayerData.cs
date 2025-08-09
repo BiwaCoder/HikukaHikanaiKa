@@ -42,6 +42,9 @@ namespace HikukaHikanaika.Models
         public int Concentration { get; set; } = 0;
         public int Kindness { get; set; } = 0;
 
+        // 神の道挑戦フラグ（挑戦中は年齢の寿命チェックを無効化）
+        public bool InDivinePath { get; set; } = false;
+
         // ゲームイベントの履歴
         public List<GameEventRecord> EventHistory { get; private set; }
 
@@ -163,11 +166,15 @@ namespace HikukaHikanaika.Models
         
         public bool IsAlive()
         {
+            // 神の道挑戦中は年齢による制限を無効化
+            if (InDivinePath) return RemainingTenmei > 0;
             return RemainingTenmei > 0 && CurrentAge < 80;
         }
         
         public bool IsGameOver()
         {
+            // 神の道挑戦中は年齢>=80をゲームオーバー条件から除外
+            if (InDivinePath) return RemainingTenmei <= 0;
             return RemainingTenmei <= 0 || CurrentAge >= 80;
         }
         
