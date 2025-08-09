@@ -135,7 +135,7 @@ public class LifeStageEventController : MonoBehaviour
                            (playerData.CurrentFamilyWealth?.points ?? 0) + 
                            (playerData.CurrentPersonality?.points ?? 0);
             
-            if (totalStats >= 1000) // 最終審判の基準
+            if (totalStats >= 600) // 最終審判の基準
             {
                 return candidateEvent;
             }

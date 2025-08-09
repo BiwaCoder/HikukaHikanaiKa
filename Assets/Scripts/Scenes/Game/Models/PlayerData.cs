@@ -253,9 +253,9 @@ namespace HikukaHikanaika.Models
                            (CurrentFamilyWealth?.points ?? 0) + 
                            (CurrentPersonality?.points ?? 0);
             
-            // 上位5%の基準：全ステータス合計1200以上
-            // この数値は通常のプレイでは到達困難で、やり込み要素
-            return totalStats >= 1200;
+            // 上位5%の基準：全ステータス合計800以上
+            // 最適戦略で約5%の確率で到達可能
+            return totalStats >= 800;
         }
         
         // 神の道開放条件チェック
