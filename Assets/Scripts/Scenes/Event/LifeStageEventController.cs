@@ -588,15 +588,12 @@ public class LifeStageEventController : MonoBehaviour
         yield return StartCoroutine(TypeText("👼 \"実は...神への道があるの。でも、とても険しい道よ？\"\n"));
         yield return new WaitForSeconds(1.5f);
         
-        yield return StartCoroutine(TypeText("⚡ 「天界の門が開かれました...神の審判を受ける覚悟はありますか？」\n"));
-        yield return new WaitForSeconds(2f);
-        
         yield return StartCoroutine(TypeText("🔥 【神の道ルート開放】上位5%のプレイヤーのみが挑戦できる特別ルートです\n"));
         yield return new WaitForSeconds(2f);
 
         // 神の道突入前に、ここまでの人生の軌跡をエンドロール表示
         yield return StartCoroutine(TypeText("\n\n========== ここまでの人生の軌跡 =========="));
-        yield return StartCoroutine(ShowLifeHistory());
+        //yield return StartCoroutine(ShowLifeHistory());
         
         SceneManager.LoadScene("FamiryGachaScene");
     }
