@@ -61,8 +61,8 @@ namespace HikukaHikanaika.Models
             gachaTables[GachaType.Concentration] = new List<GachaItem>
             {
                 new GachaItem("神集中モード", 5f, 0, 0, 60, 0, GachaType.Concentration),
-                new GachaItem("ポモドーロ最強", 25f, 0, 0, 20, 0, GachaType.Concentration),
-                new GachaItem("ながらスマホ", 70f, 0, 0, 8, 0, GachaType.Concentration)
+                new GachaItem("坐禅", 25f, 0, 0, 20, 0, GachaType.Concentration),
+                new GachaItem("瞑想", 70f, 0, 0, 8, 0, GachaType.Concentration)
             };
 
             // 優しさガチャテーブル - バズり要素追加
