@@ -476,7 +476,7 @@ public class LifeStageEventController : MonoBehaviour
             else
             {
                 // 条件を満たせなかったので、通常エンディング
-                StartCoroutine(ShowLifeHistory());
+                StartCoroutine(ShowNormalLifeHistory());
             }
         }
         else if (currentCycle >= 20) // 神の道の試練を終えた後
@@ -516,42 +516,7 @@ public class LifeStageEventController : MonoBehaviour
         }
         Debug.Log("======================================");
         
-        if (playerData.IsGameOver())
-        {
-            yield return StartCoroutine(TypeText("\n💀 GAME OVER\n"));
-            yield return new WaitForSeconds(1f);
-            yield return StartCoroutine(TypeText("👼 \"ふふふ♡ お疲れさまでした...\"\n"));
-            yield return StartCoroutine(TypeText("😈 \"あなたの魂、とっても美味しかったわ♪\""));
-        }
-        else
-        {
-            yield return StartCoroutine(TypeText("\n🎉 人生完走！\n"));
-            yield return new WaitForSeconds(1f);
-            yield return StartCoroutine(TypeText("👼 \"素晴らしい人生でしたね♡ お疲れさまでした！\"\n"));
-            yield return StartCoroutine(TypeText("😇 \"また新しい人生を歩んでくださいね♪\""));
-        }
-        
-        yield return new WaitForSeconds(3f);
-        
-        // ゲームオーバーの場合はPrologueシーンへ、それ以外は最初のシーンに戻る
-        if (playerData.IsGameOver())
-        {
-            yield return StartCoroutine(TypeText("\n👼 \"新しい子羊さんを見つけたら、\nまた遊びましょうね♡\"\n"));
-            yield return new WaitForSeconds(2f);
-            
-            // ステータス初期化してPrologueシーンへ
-            PlayerData.Initialize();
-            SceneManager.LoadScene("Prologue");
-        }
-        else
-        {
-            // 人生完走後のリトライ案内
-            yield return StartCoroutine(TypeText("\n👼 \"また新しい人生に挑戦されますか？\"\n"));
-            yield return StartCoroutine(TypeText("📝 【スペースキーでリトライ】\n"));
-            
-            // プレイヤーの入力待ち
-            yield return StartCoroutine(WaitForRetryInput());
-        }
+        yield return StartCoroutine(HandleNormalLifeCompletion());
     }
     
     // 小悪魔天使のゲームオーバー演出
@@ -573,7 +538,7 @@ public class LifeStageEventController : MonoBehaviour
         yield return new WaitForSeconds(2f);
         
         // 人生の軌跡を表示
-        yield return StartCoroutine(ShowLifeHistory());
+        yield return StartCoroutine(ShowOnlyLifeHistoryEvents());
     }
     
     // 神の道開放演出
@@ -609,7 +574,7 @@ public class LifeStageEventController : MonoBehaviour
 
         // 神の道まで含めた人生の軌跡をエンドロール表示
         yield return StartCoroutine(TypeText("\n\n========== 神の道までの人生の軌跡 =========="));
-        yield return StartCoroutine(ShowLifeHistory());
+        yield return StartCoroutine(ShowOnlyLifeHistoryEvents());
         
         if (playerData.RemainingTenmei >= 1000)
         {
@@ -652,6 +617,79 @@ public class LifeStageEventController : MonoBehaviour
         
         // プレイヤーの入力待ち
         yield return StartCoroutine(WaitForRetryInput());
+    }
+    
+    // 人生の軌跡のみを表示（エンディング処理なし）
+    IEnumerator ShowOnlyLifeHistoryEvents()
+    {
+        foreach (var record in playerData.EventHistory)
+        {
+            string historyLine = $"【{record.LifeStage}】\n{record.EventTitle}\n-> {record.ResultText}";
+            yield return StartCoroutine(TypeText(historyLine + "\n\n"));
+            yield return new WaitForSeconds(0.8f);
+        }
+        
+        Debug.Log("========== あなたの人生の軌跡 ==========" );
+        foreach (var record in playerData.EventHistory)
+        {
+            Debug.Log($"【{record.LifeStage}】 {record.EventTitle} -> {record.ResultText}");
+        }
+        Debug.Log("======================================");
+    }
+    
+    // 通常の人生履歴表示（通常クリア用）
+    IEnumerator ShowNormalLifeHistory()
+    {
+        yield return StartCoroutine(TypeText("\n\n========== あなたの人生の軌跡 ==========\n"));
+        yield return new WaitForSeconds(1f);
+        
+        yield return StartCoroutine(ShowOnlyLifeHistoryEvents());
+        
+        yield return StartCoroutine(TypeText("======================================\n"));
+        yield return new WaitForSeconds(2f);
+        
+        yield return StartCoroutine(HandleNormalLifeCompletion());
+    }
+    
+    // 通常人生完了時の処理
+    IEnumerator HandleNormalLifeCompletion()
+    {
+        if (playerData.IsGameOver())
+        {
+            yield return StartCoroutine(TypeText("\n💀 GAME OVER\n"));
+            yield return new WaitForSeconds(1f);
+            yield return StartCoroutine(TypeText("👼 \"ふふふ♡ お疲れさまでした...\"\n"));
+            yield return StartCoroutine(TypeText("😈 \"あなたの魂、とっても美味しかったわ♪\""));
+        }
+        else
+        {
+            yield return StartCoroutine(TypeText("\n🎉 人生完走！\n"));
+            yield return new WaitForSeconds(1f);
+            yield return StartCoroutine(TypeText("👼 \"素晴らしい人生でしたね♡ お疲れさまでした！\"\n"));
+            yield return StartCoroutine(TypeText("😇 \"また新しい人生を歩んでくださいね♪\""));
+        }
+        
+        yield return new WaitForSeconds(3f);
+        
+        // ゲームオーバーの場合はPrologueシーンへ、それ以外は最初のシーンに戻る
+        if (playerData.IsGameOver())
+        {
+            yield return StartCoroutine(TypeText("\n👼 \"新しい子羊さんを見つけたら、\nまた遊びましょうね♡\"\n"));
+            yield return new WaitForSeconds(2f);
+            
+            // ステータス初期化してPrologueシーンへ
+            PlayerData.Initialize();
+            SceneManager.LoadScene("Prologue");
+        }
+        else
+        {
+            // 人生完走後のリトライ案内
+            yield return StartCoroutine(TypeText("\n👼 \"また新しい人生に挑戦されますか？\"\n"));
+            yield return StartCoroutine(TypeText("📝 【スペースキーでリトライ】\n"));
+            
+            // プレイヤーの入力待ち
+            yield return StartCoroutine(WaitForRetryInput());
+        }
     }
     
     // リトライ入力待ち
