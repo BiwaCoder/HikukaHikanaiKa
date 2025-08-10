@@ -4,6 +4,8 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using HikukaHikanaika.Models;
 using System.Linq;
+using unityroom.Api;
+
 
 /*
  * LifeStageEventScene セットアップガイド:
@@ -653,6 +655,17 @@ public class LifeStageEventController : MonoBehaviour
     // 通常人生完了時の処理
     IEnumerator HandleNormalLifeCompletion()
     {
+        // スコア送信（魂片の残り数をスコアとして送信）
+        try
+        {
+            UnityroomApiClient.Instance.SendScore(1, (float)playerData.RemainingTenmei, ScoreboardWriteMode.Always);
+            Debug.Log($"スコア送信: 魂片{playerData.RemainingTenmei}個");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogWarning($"スコア送信失敗: {e.Message}");
+        }
+        
         if (playerData.IsGameOver())
         {
             yield return StartCoroutine(TypeText("\n💀 GAME OVER\n"));

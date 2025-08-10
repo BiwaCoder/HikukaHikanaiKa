@@ -171,7 +171,7 @@ public class GachaUIController : MonoBehaviour
     System.Collections.IEnumerator TransitionToGameOver()
     {
         yield return new WaitForSeconds(2f);
-        SceneManager.LoadScene("GameOver");
+        SceneManager.LoadScene("BadEndingScene");
     }
 
     public void OnClickNextScene()

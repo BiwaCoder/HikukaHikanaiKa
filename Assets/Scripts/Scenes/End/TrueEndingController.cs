@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using HikukaHikanaika.Models;
+using unityroom.Api;
 
 public class TrueEndingController : MonoBehaviour
 {
@@ -22,7 +23,7 @@ public class TrueEndingController : MonoBehaviour
         "😇 \"わたしも、あなたに仕える天使として永遠に従います\"",
         "🌟 あなたは新たな宇宙の創造主となりました",
         "🎉 【TRUE END：神への昇格】",
-        "👼 \"本当に素晴らしい結末でしたね♡ また新しい人生を歩まれますか？\""
+        "👼 \"本当に素晴らしい結末でしたね。 また新しい人生を歩まれますか？\""
     };
 
     private int currentLine = 0;
@@ -34,6 +35,17 @@ public class TrueEndingController : MonoBehaviour
     void Start()
     {
         playerData = PlayerData.Instance;
+        
+        // スコア送信（魂片の残り数をスコアとして送信）
+        try
+        {
+            UnityroomApiClient.Instance.SendScore(1, (float)playerData.RemainingTenmei, ScoreboardWriteMode.Always);
+            Debug.Log($"スコア送信: 魂片{playerData.RemainingTenmei}個");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogWarning($"スコア送信失敗: {e.Message}");
+        }
         
         if (dialogueText == null || clickableArea == null)
         {
@@ -111,7 +123,7 @@ public class TrueEndingController : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                yield return StartCoroutine(TypeText("\n👼 \"それでは、新しい運命を引き寄せましょう♡\"\n"));
+                yield return StartCoroutine(TypeText("\n👼 \"それでは、新しい運命を引き寄せましょう。\"\n"));
                 yield return new WaitForSeconds(1f);
                 
                 StartCoroutine(ReturnToPrologue());
@@ -125,8 +137,6 @@ public class TrueEndingController : MonoBehaviour
     {
         Debug.Log("トゥルーエンド終了。プロローグシーンに戻ります...");
         
-        // 終了メッセージを表示
-        dialogueText.text = "新たな運命へ...";
         
         // 指定された時間待機
         yield return new WaitForSeconds(transitionDelay);

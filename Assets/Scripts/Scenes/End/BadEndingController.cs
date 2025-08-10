@@ -3,6 +3,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using HikukaHikanaika.Models;
+using unityroom.Api;
+
 
 public class BadEndingController : MonoBehaviour
 {
@@ -17,12 +19,12 @@ public class BadEndingController : MonoBehaviour
     public float transitionDelay = 1.0f;
 
     private string[] badEndingLines = {
-        "ふと気づくと、天使の瞳が小悪魔のように輝いている...",
+        "ふと気づくと、天使の瞳が小悪魔のように赤く輝いている...",
         "😈 \"あらあら♡ とうとう魂片がゼロになっちゃったのね\"",
-        "👼 \"約束は約束よ。あなたの人生、全部わたしがいただくの♪\"",
+        "👼 \"約束は約束よ。あなたの人生、全部わたしがいただくわ♪\"",
         "✨ \"でも心配しないで。とっても美味しい人生だったわ♡\"",
         "🌟 魂片が完全に消失し、あなたの体は光の粒となって舞い上がる",
-        "😈 \"ふふふ♡ あなたの魂、とても甘くて美味しかったわ\"",
+        "😈 \"ふふふ♡ あなたの魂、とても甘くて美味しかった……\"",
         "✨ 光の粒は天使の手の中に吸い込まれていく...",
         "💀 GAME OVER 💀"
     };
@@ -36,6 +38,17 @@ public class BadEndingController : MonoBehaviour
     void Start()
     {
         playerData = PlayerData.Instance;
+        
+        // スコア送信（魂片の残り数をスコアとして送信）
+        try
+        {
+            UnityroomApiClient.Instance.SendScore(1, (float)playerData.RemainingTenmei, ScoreboardWriteMode.Always);
+            Debug.Log($"スコア送信: 魂片{playerData.RemainingTenmei}個");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogWarning($"スコア送信失敗: {e.Message}");
+        }
         
         if (dialogueText == null || clickableArea == null)
         {
@@ -130,9 +143,9 @@ public class BadEndingController : MonoBehaviour
     IEnumerator ReturnToPrologue()
     {
         Debug.Log("バッドエンド終了。プロローグシーンに戻ります...");
-        
+
         // 終了メッセージを表示
-        dialogueText.text = "また新しい運命を探しに...";
+        dialogueText.text = "\"ふふっ♡ また来てもいいんだよ……\"";
         
         // 指定された時間待機
         yield return new WaitForSeconds(transitionDelay);
