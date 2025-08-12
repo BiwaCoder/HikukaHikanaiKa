@@ -341,8 +341,8 @@ public class LifeStageEventController : MonoBehaviour
         // 4. 最終的なメッセージを一度だけ表示する
         yield return StartCoroutine(TypeText(finalMessage));
 
-        // ゲームオーバーチェック
-        if (playerData.IsGameOver())
+        // ゲームオーバーチェック（魂片切れの場合のみバッドエンド）
+        if (playerData.IsGameOver() && playerData.RemainingTenmei <= 0)
         {
             // バッドエンドシーンに遷移
             SceneManager.LoadScene("BadEndingScene");

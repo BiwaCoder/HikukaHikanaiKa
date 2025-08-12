@@ -25,6 +25,7 @@ public class PrologueSerif : MonoBehaviour
     [Header("Debug Settings (Editor Only)")]
     [SerializeField] private bool debugMaxStats = false;
     [SerializeField] private bool debugStartAt70 = false;
+    [SerializeField] private bool debugNormalEnd = false;
 
     private string[] lines = {
         "\"迷い込んできたのね、可愛い子羊さん。\"",
@@ -164,6 +165,15 @@ public class PrologueSerif : MonoBehaviour
             Debug.Log("[Debug] 70歳からスタート");
             playerData.LifeCycle = 14; // 70-75歳の長老期
             playerData.CurrentAge = 70;
+        }
+        
+        // ノーマルエンド直行（80歳・魂片適量でスタート）
+        if (debugNormalEnd)
+        {
+            Debug.Log("[Debug] ノーマルエンド直行モード");
+            playerData.LifeCycle = 15; // 80歳で終了
+            playerData.CurrentAge = 75;
+            playerData.RemainingTenmei = 20; // 適度な魂片残し
         }
     }
 #endif
