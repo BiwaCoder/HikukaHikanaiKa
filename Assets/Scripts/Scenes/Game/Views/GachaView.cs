@@ -32,14 +32,18 @@ namespace HikukaHikanaika.Views
                     : "👗 装備: 何も着ていない (美容 0)";
                     
                 string familyInfo = player.CurrentFamilyWealth != null 
-                    ? $"🏠 家柄: {player.CurrentFamilyWealth.name} (ポイント{player.CurrentFamilyWealth.points})" 
-                    : "🏠 家柄: 特になし (ポイント 0)";
+                    ? $"🏠 家柄: {player.CurrentFamilyWealth.name} (片{player.CurrentFamilyWealth.points})" 
+                    : "🏠 家柄: 特になし (片 0)";
                     
                 string personalityInfo = player.CurrentPersonality != null 
-                    ? $"😊 性格: {player.CurrentPersonality.name} (ポイント{player.CurrentPersonality.points})" 
-                    : "😊 性格: 特になし (ポイント 0)";
+                    ? $"😊 性格: {player.CurrentPersonality.name} (片{player.CurrentPersonality.points})" 
+                    : "😊 性格: 特になし (片 0)";
+
+                string luckInfo = $"🍀 運: {player.Luck}";
+                string concentrationInfo = $"🎯 集中力: {player.Concentration}";
+                string kindnessInfo = $"💖 優しさ: {player.Kindness}";
                 
-                statusText.text = $"📊 プレイヤーステータス\n{outfitInfo}\n{familyInfo}\n{personalityInfo}\n\n🎆 合計ポイント: {player.GetTotalPoints()}";
+                statusText.text = $"📊 プレイヤーステータス\n{outfitInfo}\n{familyInfo}\n{personalityInfo}\n\n{luckInfo}\n{concentrationInfo}\n{kindnessInfo}\n\n🎆 合計外見片: {player.GetAppearancePoints()}";
             }
         }
         

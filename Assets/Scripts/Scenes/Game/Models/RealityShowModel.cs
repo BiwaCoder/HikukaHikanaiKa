@@ -17,28 +17,28 @@ namespace HikukaHikanaika.Models
             {
                 new RivalData(
                     "麗華お嬢様",
-                    new GachaItem("オートクチュールのドレス", 0, 150, GachaType.Beauty),
-                    new GachaItem("一族で日本史に出てくる", 0, 200, GachaType.FamilyWealth),
-                    new GachaItem("天性の人たらし", 0, 180, GachaType.Personality)
+                    new GachaItem("オートクチュールのドレス", 0, 150, 0, 0, 0, GachaType.Beauty),
+                    new GachaItem("一族で日本史に出てくる", 0, 200, 0, 0, 0, GachaType.FamilyWealth),
+                    new GachaItem("天性の人たらし", 0, 180, 0, 0, 0, GachaType.Personality)
                 ),
                 new RivalData(
                     "田中頑張り子",
-                    new GachaItem("制服しか勝たん", 0, 80, GachaType.Beauty),
-                    new GachaItem("一般庶民", 0, 10, GachaType.FamilyWealth),
-                    new GachaItem("ツンデレの黄金比", 0, 100, GachaType.Personality)
+                    new GachaItem("制服しか勝たん", 0, 80, 0, 0, 0, GachaType.Beauty),
+                    new GachaItem("一般庶民", 0, 10, 0, 0, 0, GachaType.FamilyWealth),
+                    new GachaItem("ツンデ레の黄金比", 0, 100, 0, 0, 0, GachaType.Personality)
                 ),
                 new RivalData(
                     "佐藤普通美",
-                    new GachaItem("清潔感あるけど量販感", 0, 15, GachaType.Beauty),
-                    new GachaItem("上流階級", 0, 40, GachaType.FamilyWealth),
-                    new GachaItem("無難すぎて覚えてもらえない", 0, 25, GachaType.Personality)
+                    new GachaItem("清潔感あるけど量販感", 0, 15, 0, 0, 0, GachaType.Beauty),
+                    new GachaItem("上流階級", 0, 40, 0, 0, 0, GachaType.FamilyWealth),
+                    new GachaItem("無難すぎて覚えてもらえない", 0, 25, 0, 0, 0, GachaType.Personality)
                 )
             };
         }
         
         public JudgeResult JudgeAgainst(PlayerData player, RivalData rival)
         {
-            int playerTotal = player.GetTotalPoints();
+            int playerTotal = player.GetAppearancePoints();
             int rivalTotal = rival.GetTotalPoints();
             
             if (playerTotal > rivalTotal)
